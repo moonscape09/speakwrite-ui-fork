@@ -15,9 +15,9 @@ export default function TextBlock() {
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "content") {
-        setContent(message);
+        setContent(message.data);
       } else if (message.type === "title") {
-        setTitle(message.dat);
+        setTitle(message.data);
       }
       console.log("Message received from server: " + message);
     };
