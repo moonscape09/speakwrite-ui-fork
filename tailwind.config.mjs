@@ -8,9 +8,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        text: "#171717",
+        background: "#F1F1EF",
+        // foreground: "var(--foreground)",
       },
+      fontFamily: {
+        sw: ['Inter', 'Arial', 'Helvetica', 'sans-serif'],
+      }
     },
   },
   plugins: [],
