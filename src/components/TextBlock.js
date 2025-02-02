@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import StartButton from './StartButton';
 
 export default function TextBlock() {
   const [title, setTitle] = useState(''); // State for the page title
@@ -16,13 +17,13 @@ export default function TextBlock() {
   }, [content]);
 
   return (
-    <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw">
+    <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
       <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="New page"
-          className="w-full text-4xl font-bold text-gray-900 placeholder-gray-400 mb-4 outline-none bg-transparent"
+          className="w-full text-4xl font-bold text-gray-900 placeholder-gray-400 mb-4 outline-none bg-transparent flex-none"
         />
 
       <textarea
@@ -30,9 +31,12 @@ export default function TextBlock() {
         value={content}
         onChange={(e) => setText(e.target.value)}
         placeholder = "Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black placeholder-gray-400 leading-relaxed"
+        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black placeholder-gray-400 leading-relaxed flex-grow basis-0"
         rows={5}
       />
+      <div className="flex justify-center basis-0">
+        <StartButton/>
+      </div>
     </div>
   );
 }
