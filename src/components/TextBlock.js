@@ -10,6 +10,8 @@ export default function TextBlock({setFileTitle}) {
   const contentRef = useRef(null);
   let [c_uid, setCuid] = useState(null);
   let [c_sid, setCsid] = useState(null);
+  const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
+  const wsRef = useRef(null);
 
   // setFileTitle("{}");
 
@@ -62,48 +64,48 @@ export default function TextBlock({setFileTitle}) {
   }, [c_uid, c_sid]);
 
 
-  // Set up WebSocket connection and handle messages
-  useEffect(() => {
+  // // Set up WebSocket connection and handle messages
+  // useEffect(() => {
 
-    if(c_sid == null){
-      return;
-    }
+  //   if(c_sid == null || !isConnected){
+  //     return;
+  //   }
 
-    const ws = new WebSocket("ws://localhost:8000/ws");
+  //   const ws = new WebSocket("ws://localhost:8000/ws");
 
-    ws.onmessage = async (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "content") {
-        setContent(message.data);
-        console.log(message.data, c_sid);
+  //   ws.onmessage = async (event) => {
+  //     const message = JSON.parse(event.data);
+  //     if (message.type === "content") {
+  //       setContent(message.data);
+  //       console.log(message.data, c_sid);
         
-        createChat(c_sid, "speakwrite", message.data);
+  //       createChat(c_sid, "speakwrite", message.data);
         
-      } else if (message.type === "title") {
-        setTitle(message.data);
-        setFileTitle(message.data);
+  //     } else if (message.type === "title") {
+  //       setTitle(message.data);
+  //       setFileTitle(message.data);
         
-      }
+  //     }
 
-      console.log("Message received from server: " + message);
-    };
+  //     console.log("Message received from server: " + message);
+  //   };
 
-    ws.onopen = () => {
-      console.log("Connected to WebSocket server.");
-    };
+  //   ws.onopen = () => {
+  //     console.log("Connected to WebSocket server.");
+  //   };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+  //   ws.onerror = (error) => {
+  //     console.error("WebSocket error:", error);
+  //   };
 
-    ws.onclose = () => {
-      console.log("WebSocket connection closed.");
-    };
+  //   ws.onclose = () => {
+  //     console.log("WebSocket connection closed.");
+  //   };
 
-    return () => {
-      ws.close();
-    };
-  }, [c_sid]);
+  //   return () => {
+  //     ws.close();
+  //   };
+  // }, [c_sid, isConnected]);
 
   // Auto-resize the textarea as you type
   useEffect(() => {
@@ -112,6 +114,54 @@ export default function TextBlock({setFileTitle}) {
       contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
   }, [content]);
+
+  // Handle WebSocket connection
+  const handleStartButtonClick = () => {
+    if (isConnected) {
+      // Close WebSocket connection
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      setIsConnected(false); 
+    } else {
+      // Open WebSocket connection
+      if (c_sid != null) {
+        const ws = new WebSocket("ws://localhost:8000/ws");
+
+        ws.onmessage = async (event) => {
+          const message = JSON.parse(event.data);
+          if (message.type === "content") {
+            setContent(message.data);
+            console.log(message.data, c_sid);
+
+            createChat(c_sid, "speakwrite", message.data);
+          } else if (message.type === "title") {
+            setTitle(message.data);
+            setFileTitle(message.data);
+          }
+
+          console.log("Message received from server: " + message.data);
+        };
+
+        ws.onopen = () => {
+          console.log("Connected to WebSocket server.");
+          setTimeout(() => setIsConnected(true), 0); 
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+        };
+
+        ws.onclose = () => {
+          console.log("WebSocket connection closed.");
+          setTimeout(() => setIsConnected(false), 0); 
+        };
+
+        wsRef.current = ws; // Store WebSocket reference
+      }
+    }
+  };
+
 
   return (
     <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
@@ -139,7 +189,7 @@ export default function TextBlock({setFileTitle}) {
         rows={5}
       />
       <div className="flex justify-center basis-0">
-        <StartButton />
+        <StartButton onClick={handleStartButtonClick} isConnected={isConnected}/>
       </div>
     </div>
   );
