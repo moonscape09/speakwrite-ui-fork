@@ -60,7 +60,7 @@ export default function TextBlock() {
       <textarea
         ref={contentRef}
         value={content}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
         placeholder="Start writing your notes here..."
         className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black placeholder-gray-400 leading-relaxed flex-grow basis-0"
         rows={5}
