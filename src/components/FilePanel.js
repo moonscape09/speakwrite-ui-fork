@@ -1,6 +1,6 @@
 'use client';
 
-export default function FilePanel({onClose}) {
+export default function FilePanel({onClose, fileTitle}) {
   return (
     <div id="file_panel" className="w-64 bg-gray-200 p-5 border-r mr-2 rounded-lg border-gray-300 shadow-md font-sw">
         <div className="flex">
@@ -10,7 +10,7 @@ export default function FilePanel({onClose}) {
           </button>
         </div>
         <ul className="space-y-2">
-            <li className="text-black hover:bg-gray-200 p-2 rounded-md cursor-pointer">Document 1</li>
+            <li className="text-black hover:bg-gray-200 p-2 rounded-md cursor-pointer">{fileTitle}</li>
         </ul>
     </div>
   );
