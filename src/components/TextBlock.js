@@ -2,15 +2,29 @@
 
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { createChat } from "@/lib/api";
-import { c_sid } from "./HomePage";
+import { createChat, fetchChats } from "@/lib/api";
 
-export default function TextBlock({setFileTitle}) {
+export default function TextBlock({setFileTitle, c_sid}) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
 
   // setFileTitle("{}");
+
+
+  // Fetch the latest chat message for the current session on component mount
+  useEffect(() => {
+    async function fetchLatestChat() {
+      const chats = await fetchChats();
+      if (chats && chats.length > 0) {
+        console.log(chats)
+        const latestChat = chats[0]; // Get the latest chat message
+        setContent(latestChat.message);  
+      }
+    }
+
+    fetchLatestChat();
+  }, []);
 
 
   // Set up WebSocket connection and handle messages
@@ -26,6 +40,7 @@ export default function TextBlock({setFileTitle}) {
       } else if (message.type === "title") {
         setTitle(message.data);
         setFileTitle(message.data);
+        
       }
 
       console.log("Message received from server: " + message);
@@ -74,6 +89,7 @@ export default function TextBlock({setFileTitle}) {
         onKeyDown={(e) => {
         if (e.key === "Enter") {
           setFileTitle(e.target.value.slice(0, 20));
+          createChat(c_sid, "speakwrite", e.target.value);
           }
         }}
         placeholder="Start writing your notes here..."

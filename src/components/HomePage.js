@@ -5,23 +5,19 @@ import FilePanel from '@/components/FilePanel';
 import { useState, useEffect } from 'react';
 import { createUser, createSession } from '@/lib/api';
 
-export let c_sid = -1;
-
 export default function HomePage() {
-
-
-
   
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
   const [c_uid, setCuid] = useState(null);
   const [c_sid, setCsid] = useState(null);
 
+
+
   useEffect(() => {
     async function intializeUser() {
       const user = await createUser("John Doe", "a@b.c", "12345678");
-      
-
+    
 
       if (user && user.id){
         setCuid(user.id)
@@ -62,7 +58,7 @@ export default function HomePage() {
           </button>
         )}
         {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} />}
-        <TextBlock setFileTitle={setFileTitle} />
+        <TextBlock setFileTitle={setFileTitle} c_sid={c_sid}/>
     </div>
   );
 }
