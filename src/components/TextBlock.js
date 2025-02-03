@@ -2,15 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { createChat, fetchChats } from "@/lib/api";
+import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 
-export default function TextBlock({setFileTitle, c_sid}) {
+export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
+  let [c_uid, setCuid] = useState(null);
+  let [c_sid, setCsid] = useState(null);
 
   // setFileTitle("{}");
-
 
   // Fetch the latest chat message for the current session on component mount
   useEffect(() => {
@@ -19,24 +20,65 @@ export default function TextBlock({setFileTitle, c_sid}) {
       if (chats && chats.length > 0) {
         console.log(chats)
         const latestChat = chats[0]; // Get the latest chat message
-        setContent(latestChat.message);  
+        setContent(latestChat.message); 
+        if (c_sid == null){
+          setCsid(latestChat.session_id);
+        } 
       }
     }
 
     fetchLatestChat();
-  }, []);
+  }, [c_sid]);
+
+  
+  useEffect(() => {
+    async function intializeUser() {
+      if (c_uid === null){
+        const user = await createUser("John Doe", "a@b.c", "12345678");
+    
+
+      if (user && user.id){
+        setCuid(user.id)
+        console.log(user)
+      }
+   
+    }}
+    intializeUser();
+  }, [c_uid]);
+ 
+  useEffect(() => {
+    async function intializeSess() {
+        if (c_sid === null){
+        if (c_uid != null){
+        const session = await createSession({user_id:c_uid, context:{}});
+        
+        if (session && session.session_id){
+          setCsid(session.session_id)
+          console.log(session)
+        }
+    } }}
+    
+    intializeSess();
+  }, [c_uid, c_sid]);
 
 
   // Set up WebSocket connection and handle messages
   useEffect(() => {
 
+    if(c_sid == null){
+      return;
+    }
+
     const ws = new WebSocket("ws://localhost:8000/ws");
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "content") {
         setContent(message.data);
+        console.log(message.data, c_sid);
+        
         createChat(c_sid, "speakwrite", message.data);
+        
       } else if (message.type === "title") {
         setTitle(message.data);
         setFileTitle(message.data);
@@ -61,7 +103,7 @@ export default function TextBlock({setFileTitle, c_sid}) {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [c_sid]);
 
   // Auto-resize the textarea as you type
   useEffect(() => {
@@ -77,7 +119,7 @@ export default function TextBlock({setFileTitle, c_sid}) {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="New page"
+        placeholder="Session 1"
         className="w-full text-4xl font-bold text-gray-900 placeholder-gray-400 mb-4 outline-none bg-transparent flex-none"
       />
 
