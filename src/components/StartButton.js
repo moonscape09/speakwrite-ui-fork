@@ -7,7 +7,7 @@ export default function StartButton({clickHandler, isConnected}){
         <div className="relative flex items-center justify-center">
             <button
                 onClick={() => clickHandler(tone)}
-                className={`w-24 h-24 ${isConnected? `bg-gray-500 hover:bg-gray-400` : `bg-gray-400 hover:bg-gray-500`} mb-2 text-white rounded-full shadow-lg  flex items-center justify-center`}
+                className={`w-24 h-24 ${isConnected? `bg-gray-500 hover:bg-gray-400` : `bg-gray-400 hover:bg-gray-500`} mb-2 text-white rounded-full shadow-lg flex items-center justify-center`}
                 >
                     <img src="mic.png" alt="Mic" width="60" height="60"/>
             </button>
