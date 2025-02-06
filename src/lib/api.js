@@ -14,7 +14,8 @@ export const fetchChats = async () => {
 
 export const createChat = async ( session_id, sender, message) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/chats`, { session_id: session_id, sender: sender, message: message});
+        const response = await axios.post(`${API_BASE_URL}/chats`, { "session_id": session_id, "sender": sender, "message": message});
+        console.log({ session_id: session_id, sender: sender, message: message});
         return response.data;
     }
     catch (error){
