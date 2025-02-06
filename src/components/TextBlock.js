@@ -116,7 +116,7 @@ export default function TextBlock({setFileTitle}) {
   }, [content]);
 
   // Handle WebSocket connection
-  const handleStartButtonClick = () => {
+  const handleStartButtonClick = (tone) => {
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -189,7 +189,7 @@ export default function TextBlock({setFileTitle}) {
         rows={5}
       />
       <div className="flex justify-center basis-0">
-        <StartButton onClick={handleStartButtonClick} isConnected={isConnected}/>
+        <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
       </div>
     </div>
   );
