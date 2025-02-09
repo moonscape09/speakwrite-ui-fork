@@ -41,4 +41,3 @@ export const setUpRecognition = (wsRef) => {
   return recognition;
 }
 
-export { setUpRecognition };
