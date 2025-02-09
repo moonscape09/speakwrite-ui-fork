@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
+import { setUpRecognition } from "@/lib/SpeechRecognition";
+
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
@@ -22,44 +24,44 @@ export default function TextBlock({setFileTitle}) {
       if (chats && chats.length > 0) {
         console.log(chats)
         const latestChat = chats[0]; // Get the latest chat message
-        setContent(latestChat.message); 
+        setContent(latestChat.message);
         if (c_sid == null){
           setCsid(latestChat.session_id);
-        } 
+        }
       }
     }
 
     fetchLatestChat();
   }, [c_sid]);
 
-  
+
   useEffect(() => {
     async function intializeUser() {
       if (c_uid === null){
         const user = await createUser("John Doe", "a@b.c", "12345678");
-    
+
 
       if (user && user.id){
         setCuid(user.id)
         console.log(user)
       }
-   
+
     }}
     intializeUser();
   }, [c_uid]);
- 
+
   useEffect(() => {
     async function intializeSess() {
         if (c_sid === null){
         if (c_uid != null){
         const session = await createSession({user_id:c_uid, context:{}});
-        
+
         if (session && session.session_id){
           setCsid(session.session_id)
           console.log(session)
         }
     } }}
-    
+
     intializeSess();
   }, [c_uid, c_sid]);
 
@@ -78,13 +80,13 @@ export default function TextBlock({setFileTitle}) {
   //     if (message.type === "content") {
   //       setContent(message.data);
   //       console.log(message.data, c_sid);
-        
+
   //       createChat(c_sid, "speakwrite", message.data);
-        
+
   //     } else if (message.type === "title") {
   //       setTitle(message.data);
   //       setFileTitle(message.data);
-        
+
   //     }
 
   //     console.log("Message received from server: " + message);
@@ -117,35 +119,42 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
+    const recognition = setUpRecognition(wsRef);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
         wsRef.current.close();
       }
-      setIsConnected(false); 
+      recognition.stop(); // Stop speech recognition when disconnecting
+      setIsConnected(false);
     } else {
       // Open WebSocket connection
       if (c_sid != null) {
         const ws = new WebSocket("ws://localhost:8000/ws");
 
-        ws.onmessage = async (event) => {
+      ws.onopen = () => {
+        console.log("Connected to WebSocket server.");
+        setTimeout(() => setIsConnected(true), 0);
+        wsRef.current = ws; // Store WebSocket reference
+
+        // Start speech recognition when the connected
+        recognition.start();
+      };
+
+      ws.onmessage = async (event) => {
+        try {
           const message = JSON.parse(event.data);
           if (message.type === "content") {
             setContent(message.data);
             console.log(message.data, c_sid);
-
             createChat(c_sid, "speakwrite", message.data);
           } else if (message.type === "title") {
             setTitle(message.data);
             setFileTitle(message.data);
           }
-
-          console.log("Message received from server: " + message.data);
-        };
-
-        ws.onopen = () => {
-          console.log("Connected to WebSocket server.");
-          setTimeout(() => setIsConnected(true), 0); 
+          } catch (err) {
+            console.error("Error parsing WebSocket message:", err);
+          }
         };
 
         ws.onerror = (error) => {
@@ -154,7 +163,8 @@ export default function TextBlock({setFileTitle}) {
 
         ws.onclose = () => {
           console.log("WebSocket connection closed.");
-          setTimeout(() => setIsConnected(false), 0); 
+          setTimeout(() => setIsConnected(false), 0);
+          recognition.stop(); // Stop speech recognition when connection closes
         };
 
         wsRef.current = ws; // Store WebSocket reference
