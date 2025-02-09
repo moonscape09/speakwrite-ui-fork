@@ -105,7 +105,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
     } else {
       // Open WebSocket connection
       if (c_sid != null) {
-        const ws = new WebSocket("ws://localhost:8000/ws");
+        const ws = new WebSocket("ws://speakwrite.ddns.net/websockets/ws");
 
         ws.onopen = () => {
           console.log("Connected to WebSocket server.");
