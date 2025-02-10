@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://speakwrite.ddns.net";
+const API_BASE_URL = "https://speakwrite.ddns.net";
 
 export const fetchChats = async () => {
     try {

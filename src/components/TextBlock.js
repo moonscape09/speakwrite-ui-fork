@@ -130,7 +130,7 @@ export default function TextBlock({setFileTitle}) {
     } else {
       // Open WebSocket connection
       if (c_sid != null) {
-        const ws = new WebSocket("ws://speakwrite.ddns.net/websockets/ws");
+        const ws = new WebSocket("wss://speakwrite.ddns.net/websockets/ws");
 
       ws.onopen = () => {
         console.log("Connected to WebSocket server.");
