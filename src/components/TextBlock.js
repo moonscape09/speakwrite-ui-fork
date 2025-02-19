@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
-
+import DownloadPdf from "./DownloadPdf";
+import { jsPDF } from "jspdf";
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
@@ -119,7 +120,7 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef);
+    const recognition = setUpRecognition(wsRef, c_sid);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -173,6 +174,15 @@ export default function TextBlock({setFileTitle}) {
   };
 
 
+  const handleDownloadPdf = () => {
+    // Download the content as a PDF file
+    const pdf = new jsPDF();
+    pdf.text(title, 20, 20);
+    pdf.text(content, 20, 30);
+    console.log(pdf);
+    pdf.save("notes.pdf");
+  }
+
   return (
     <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
       <input
@@ -198,8 +208,12 @@ export default function TextBlock({setFileTitle}) {
         className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black placeholder-gray-400 leading-relaxed flex-grow basis-0"
         rows={5}
       />
-      <div className="flex justify-center basis-0">
+      <div className="flex justify-center basis-0 w-full mt-4">
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
+      </div>
+
+      <div className="absolute bottom-8 right-8">
+        <DownloadPdf handle={handleDownloadPdf}/>
       </div>
     </div>
   );
