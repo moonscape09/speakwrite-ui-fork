@@ -1,4 +1,6 @@
-export const setUpRecognition = (wsRef) => {
+import { createChat } from "./api";
+
+export const setUpRecognition = (wsRef, c_sid) => {
   let recognition; 
 
   if (typeof window !== 'undefined') { // added this check as I would get window not defined error (probably has to do with SSR)
@@ -21,6 +23,7 @@ export const setUpRecognition = (wsRef) => {
         }
       }
       if (transcript) {
+        createChat(c_sid, "user", transcript);
         console.log("Transcribed speech:", transcript);
   
         // Send the transcribed speech to WebSocket server
