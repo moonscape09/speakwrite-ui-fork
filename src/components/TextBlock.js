@@ -5,6 +5,7 @@ import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
+import UploadPdf from "./UploadPdf";
 import { jsPDF } from "jspdf";
 
 export default function TextBlock({setFileTitle}) {
@@ -15,6 +16,7 @@ export default function TextBlock({setFileTitle}) {
   let [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  let [pdfContent, setPdfContent] = useState("");
 
   // setFileTitle("{}");
 
@@ -67,49 +69,6 @@ export default function TextBlock({setFileTitle}) {
   }, [c_uid, c_sid]);
 
 
-  // // Set up WebSocket connection and handle messages
-  // useEffect(() => {
-
-  //   if(c_sid == null || !isConnected){
-  //     return;
-  //   }
-
-  //   const ws = new WebSocket("ws://localhost:8000/ws");
-
-  //   ws.onmessage = async (event) => {
-  //     const message = JSON.parse(event.data);
-  //     if (message.type === "content") {
-  //       setContent(message.data);
-  //       console.log(message.data, c_sid);
-
-  //       createChat(c_sid, "speakwrite", message.data);
-
-  //     } else if (message.type === "title") {
-  //       setTitle(message.data);
-  //       setFileTitle(message.data);
-
-  //     }
-
-  //     console.log("Message received from server: " + message);
-  //   };
-
-  //   ws.onopen = () => {
-  //     console.log("Connected to WebSocket server.");
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error("WebSocket error:", error);
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log("WebSocket connection closed.");
-  //   };
-
-  //   return () => {
-  //     ws.close();
-  //   };
-  // }, [c_sid, isConnected]);
-
   // Auto-resize the textarea as you type
   useEffect(() => {
     if (contentRef.current) {
@@ -120,7 +79,7 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef, c_sid);
+    const recognition = setUpRecognition(wsRef, c_sid, pdfContent, setIsConnected);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -149,6 +108,7 @@ export default function TextBlock({setFileTitle}) {
             setContent(message.data);
             console.log(message.data, c_sid);
             createChat(c_sid, "speakwrite", message.data);
+            setPdfContent('');
           } else if (message.type === "title") {
             setTitle(message.data);
             setFileTitle(message.data);
@@ -214,7 +174,10 @@ export default function TextBlock({setFileTitle}) {
 
       <div className="absolute bottom-8 right-8">
         <DownloadPdf handle={handleDownloadPdf}/>
+        <UploadPdf setPdfContent={setPdfContent}/>
+
       </div>
+
     </div>
   );
 }
