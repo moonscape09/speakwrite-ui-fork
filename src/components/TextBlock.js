@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
+import AudioTranscription from "./AudioTranscription";
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
@@ -12,6 +13,8 @@ export default function TextBlock({setFileTitle}) {
   let [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [transcription, setTranscription] = useState("");
+
 
   // setFileTitle("{}");
 
@@ -190,6 +193,13 @@ export default function TextBlock({setFileTitle}) {
       />
       <div className="flex justify-center basis-0">
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
+      </div>
+      <div className="absolute bottom-8 right-8">
+        <AudioTranscription setTranscription = {setTranscription}/>
+        <div className="mt-4 p-2 border rounded">
+        <h3 className="text-lg font-bold">Transcription from Parent:</h3>
+        <p>{transcription}</p>
+        </div>
       </div>
     </div>
   );
