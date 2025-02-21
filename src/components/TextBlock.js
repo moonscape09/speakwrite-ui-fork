@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
+import AudioTranscription from "./AudioTranscription";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
 import UploadPdf from "./UploadPdf";
@@ -16,6 +17,7 @@ export default function TextBlock({setFileTitle}) {
   let [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [transcription, setTranscription] = useState("");
   let [pdfContent, setPdfContent] = useState("");
 
   // setFileTitle("{}");
@@ -170,6 +172,9 @@ export default function TextBlock({setFileTitle}) {
       />
       <div className="flex justify-center basis-0 w-full mt-4">
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
+      </div>
+      <div className="absolute bottom-7 right-8">
+        <AudioTranscription setTranscription = {setTranscription}/>
       </div>
 
       <div className="absolute bottom-8 right-8">
