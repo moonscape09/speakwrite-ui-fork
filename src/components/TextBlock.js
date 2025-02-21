@@ -196,10 +196,6 @@ export default function TextBlock({setFileTitle}) {
       </div>
       <div className="absolute bottom-8 right-8">
         <AudioTranscription setTranscription = {setTranscription}/>
-        <div className="mt-4 p-2 border rounded">
-        <h3 className="text-lg font-bold">Transcription from Parent:</h3>
-        <p>{transcription}</p>
-        </div>
       </div>
     </div>
   );
