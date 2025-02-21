@@ -17,15 +17,15 @@ export default function AudioTranscription({ setTranscription }) {
       const formData = new FormData();
       formData.append("file", audioBlob, file.name);
       
-      const hf = new HfInference("xxxxxxx");
+      const hf = new HfInference("xxxxx");
       //const response = await hf.pipeline("automatic-speech-recognition", "openai/whisper-tiny")(formData);
       const response = await hf.automaticSpeechRecognition({
-        formData,
+        data: file,
         model: "openai/whisper-tiny",
         provider: "hf-inference"
       });
-      // console.log(response);
-      setTranscription(response);
+      console.log(response);
+      setTranscription(response.text);
     } catch (error) {
       console.error("Error transcribing audio:", error);
     }
