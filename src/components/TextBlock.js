@@ -6,19 +6,18 @@ import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 import AudioTranscription from "./AudioTranscription";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
-import UploadPdf from "./UploadPdf";
 import { jsPDF } from "jspdf";
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
-  let [c_uid, setCuid] = useState(null);
-  let [c_sid, setCsid] = useState(null);
+  const [c_uid, setCuid] = useState(null);
+  const [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
   const [transcription, setTranscription] = useState("");
-  let [pdfContent, setPdfContent] = useState("");
+  const [pdfContent, setPdfContent] = useState("");
 
   // setFileTitle("{}");
 
@@ -81,7 +80,7 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef, c_sid, pdfContent, setIsConnected);
+    const recognition = setUpRecognition(wsRef, c_sid, pdfContent, setPdfContent, setIsConnected, transcription, setTranscription);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -110,14 +109,16 @@ export default function TextBlock({setFileTitle}) {
             setContent(message.data);
             console.log(message.data, c_sid);
             createChat(c_sid, "speakwrite", message.data);
-            setPdfContent('');
+            console.log(pdfContent + " inside onmessage " + transcription);
           } else if (message.type === "title") {
             setTitle(message.data);
             setFileTitle(message.data);
           }
+
           } catch (err) {
             console.error("Error parsing WebSocket message:", err);
           }
+         
         };
 
         ws.onerror = (error) => {
@@ -146,7 +147,7 @@ export default function TextBlock({setFileTitle}) {
   }
 
   return (
-    <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
+    <div className="relative w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
       <input
         type="text"
         value={title}
@@ -173,14 +174,12 @@ export default function TextBlock({setFileTitle}) {
       <div className="flex justify-center basis-0 w-full mt-4">
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
       </div>
-      <div className="absolute bottom-7 right-8">
-        <AudioTranscription setTranscription = {setTranscription}/>
+      <div className="absolute bottom-0 right-0">
+        <AudioTranscription setTranscription = {setTranscription} setPdfContent={setPdfContent}/>
       </div>
 
-      <div className="absolute bottom-8 right-8">
+      <div className="absolute bottom-0 left-0 p-2">
         <DownloadPdf handle={handleDownloadPdf}/>
-        <UploadPdf setPdfContent={setPdfContent}/>
-
       </div>
 
     </div>
