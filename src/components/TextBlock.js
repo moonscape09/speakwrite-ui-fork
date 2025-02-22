@@ -3,19 +3,25 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
+import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
 import { jsPDF } from "jspdf";
+import { flushSync } from "react-dom";
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
-  let [c_uid, setCuid] = useState(null);
-  let [c_sid, setCsid] = useState(null);
+  const [c_uid, setCuid] = useState(null);
+  const [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  // const [transcription, setTranscription] = useState("");
+  // const [pdfContent, setPdfContent] = useState("");
 
+  const pdfContentRef = useRef("");
+  const transcriptionRef = useRef("");
   // setFileTitle("{}");
 
   // Fetch the latest chat message for the current session on component mount
@@ -67,49 +73,6 @@ export default function TextBlock({setFileTitle}) {
   }, [c_uid, c_sid]);
 
 
-  // // Set up WebSocket connection and handle messages
-  // useEffect(() => {
-
-  //   if(c_sid == null || !isConnected){
-  //     return;
-  //   }
-
-  //   const ws = new WebSocket("ws://localhost:8000/ws");
-
-  //   ws.onmessage = async (event) => {
-  //     const message = JSON.parse(event.data);
-  //     if (message.type === "content") {
-  //       setContent(message.data);
-  //       console.log(message.data, c_sid);
-
-  //       createChat(c_sid, "speakwrite", message.data);
-
-  //     } else if (message.type === "title") {
-  //       setTitle(message.data);
-  //       setFileTitle(message.data);
-
-  //     }
-
-  //     console.log("Message received from server: " + message);
-  //   };
-
-  //   ws.onopen = () => {
-  //     console.log("Connected to WebSocket server.");
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error("WebSocket error:", error);
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log("WebSocket connection closed.");
-  //   };
-
-  //   return () => {
-  //     ws.close();
-  //   };
-  // }, [c_sid, isConnected]);
-
   // Auto-resize the textarea as you type
   useEffect(() => {
     if (contentRef.current) {
@@ -120,7 +83,7 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef, c_sid);
+    const recognition = setUpRecognition(wsRef, c_sid, pdfContentRef, setIsConnected, transcriptionRef);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -149,13 +112,18 @@ export default function TextBlock({setFileTitle}) {
             setContent(message.data);
             console.log(message.data, c_sid);
             createChat(c_sid, "speakwrite", message.data);
+            pdfContentRef.current = "";
+            transcriptionRef.current = "";
+            console.log(pdfContentRef.current + " inside onmessage " + transcriptionRef.current);
           } else if (message.type === "title") {
             setTitle(message.data);
             setFileTitle(message.data);
           }
+
           } catch (err) {
             console.error("Error parsing WebSocket message:", err);
           }
+         
         };
 
         ws.onerror = (error) => {
@@ -184,7 +152,7 @@ export default function TextBlock({setFileTitle}) {
   }
 
   return (
-    <div className="w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
+    <div className="relative w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
       <input
         type="text"
         value={title}
@@ -211,10 +179,14 @@ export default function TextBlock({setFileTitle}) {
       <div className="flex justify-center basis-0 w-full mt-4">
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
       </div>
+      <div className="absolute bottom-0 right-0">
+        <MediaParser transcriptionRef = {transcriptionRef} pdfContentRef={pdfContentRef}/>
+      </div>
 
-      <div className="absolute bottom-8 right-8">
+      <div className="absolute bottom-0 left-0 p-2">
         <DownloadPdf handle={handleDownloadPdf}/>
       </div>
+
     </div>
   );
 }
