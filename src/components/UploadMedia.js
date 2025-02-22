@@ -2,11 +2,12 @@ import { useState } from "react";
 import { HfInference } from "@huggingface/inference";
 import { useDropzone } from "react-dropzone";
 import * as pdfjs from 'pdfjs-dist';
+import { flushSync } from "react-dom";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 
-export default function AudioTranscription({ setTranscription, setPdfContent }) {
+export default function MediaParser({ transcriptionRef, pdfContentRef }) {
   //const [transcription, setTranscription] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export default function AudioTranscription({ setTranscription, setPdfContent }) 
       // const formData = new FormData();
       // formData.append("file", audioBlob, file.name);
       
-      const hf = new HfInference("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");
+      const hf = new HfInference("xxxxxxxx");
       //const response = await hf.pipeline("automatic-speech-recognition", "openai/whisper-tiny")(formData);
       const response = await hf.automaticSpeechRecognition({
         data: file,
@@ -29,7 +30,7 @@ export default function AudioTranscription({ setTranscription, setPdfContent }) 
         provider: "hf-inference"
       });
       console.log(response);
-      setTranscription(response.text);
+      transcriptionRef.current = response.text;
     } catch (error) {
       console.error("Error transcribing audio:", error);
     } finally{
@@ -54,7 +55,7 @@ export default function AudioTranscription({ setTranscription, setPdfContent }) 
               combinedText += textItems.join(' ');
           }
 
-        setPdfContent(combinedText);
+        pdfContentRef.current = combinedText;
         console.log('PDF content: ' + combinedText)
       }
       finally{

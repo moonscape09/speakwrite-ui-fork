@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
-import AudioTranscription from "./AudioTranscription";
+import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
 import { jsPDF } from "jspdf";
+import { flushSync } from "react-dom";
 
 export default function TextBlock({setFileTitle}) {
   const [title, setTitle] = useState(""); // State for the page title
@@ -16,9 +17,11 @@ export default function TextBlock({setFileTitle}) {
   const [c_sid, setCsid] = useState(null);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
-  const [transcription, setTranscription] = useState("");
-  const [pdfContent, setPdfContent] = useState("");
+  // const [transcription, setTranscription] = useState("");
+  // const [pdfContent, setPdfContent] = useState("");
 
+  const pdfContentRef = useRef("");
+  const transcriptionRef = useRef("");
   // setFileTitle("{}");
 
   // Fetch the latest chat message for the current session on component mount
@@ -80,7 +83,7 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef, c_sid, pdfContent, setPdfContent, setIsConnected, transcription, setTranscription);
+    const recognition = setUpRecognition(wsRef, c_sid, pdfContentRef, setIsConnected, transcriptionRef);
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -109,7 +112,9 @@ export default function TextBlock({setFileTitle}) {
             setContent(message.data);
             console.log(message.data, c_sid);
             createChat(c_sid, "speakwrite", message.data);
-            console.log(pdfContent + " inside onmessage " + transcription);
+            pdfContentRef.current = "";
+            transcriptionRef.current = "";
+            console.log(pdfContentRef.current + " inside onmessage " + transcriptionRef.current);
           } else if (message.type === "title") {
             setTitle(message.data);
             setFileTitle(message.data);
@@ -175,7 +180,7 @@ export default function TextBlock({setFileTitle}) {
         <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
       </div>
       <div className="absolute bottom-0 right-0">
-        <AudioTranscription setTranscription = {setTranscription} setPdfContent={setPdfContent}/>
+        <MediaParser transcriptionRef = {transcriptionRef} pdfContentRef={pdfContentRef}/>
       </div>
 
       <div className="absolute bottom-0 left-0 p-2">

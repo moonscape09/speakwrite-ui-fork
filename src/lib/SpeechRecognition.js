@@ -1,7 +1,7 @@
 import { createChat } from "./api";
 
 
-export const setUpRecognition = (wsRef, c_sid, pdfContent, setPdfContent, setIsConnected, transcription, setTranscription) => {
+export const setUpRecognition = (wsRef, c_sid, pdfRef, setIsConnected, transcriptionRef) => {
   let recognition; 
 
   if (typeof window !== 'undefined') { // added this check as I would get window not defined error (probably has to do with SSR)
@@ -29,15 +29,9 @@ export const setUpRecognition = (wsRef, c_sid, pdfContent, setPdfContent, setIsC
   
         // Send the transcribed speech to WebSocket server
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-          console.log(pdfContent)
-          console.log(transcription)
-          wsRef.current.send(transcript + " " + pdfContent + " " + transcription);
-          
-          setPdfContent("");
-          setTranscription("");
-          console.log(pdfContent)
-          console.log(transcription)
-           
+          // console.log(pdfContent)
+          // console.log(transcription)
+          wsRef.current.send(transcript + " " + pdfRef.current + " " + transcriptionRef.current);
         }
       }
     };
