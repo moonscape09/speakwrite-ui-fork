@@ -9,8 +9,9 @@ import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
 import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
+import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({setFileTitle}) {
+export default function TextBlock({ setFileTitle }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -30,10 +31,10 @@ export default function TextBlock({setFileTitle}) {
     async function fetchLatestChat() {
       const chats = await fetchChats();
       if (chats && chats.length > 0) {
-        console.log(chats)
+        console.log(chats);
         const latestChat = chats[0]; // Get the latest chat message
         setContent(latestChat.message);
-        if (c_sid == null){
+        if (c_sid == null) {
           setCsid(latestChat.session_id);
         }
       }
@@ -42,37 +43,41 @@ export default function TextBlock({setFileTitle}) {
     fetchLatestChat();
   }, [c_sid]);
 
-
   useEffect(() => {
     async function intializeUser() {
-      if (c_uid === null){
+      if (c_uid === null) {
         const user = await createUser("John Doe", "a@b.c", "12345678");
 
-
-      if (user && user.id){
-        setCuid(user.id)
-        console.log(user)
+        if (user && user.id) {
+          setCuid(user.id);
+          console.log(user);
+        }
       }
-
-    }}
+    }
     intializeUser();
   }, [c_uid]);
 
   useEffect(() => {
     async function intializeSess() {
-        if (c_sid === null){
-        if (c_uid != null && sessionsExist){ // check if a session already exists, making it unnecessary to create a new one
-        const session = await createSession({session_name: "New file", user_id:c_uid, context:{}});
+      if (c_sid === null) {
+        if (c_uid != null && sessionsExist) {
+          // check if a session already exists, making it unnecessary to create a new one
+          const session = await createSession({
+            session_name: "New file",
+            user_id: c_uid,
+            context: {},
+          });
 
-        if (session && session.session_id){
-          setCsid(session.session_id)
-          console.log(session)
+          if (session && session.session_id) {
+            setCsid(session.session_id);
+            console.log(session);
+          }
         }
-    } }}
+      }
+    }
 
     intializeSess();
   }, [c_uid, c_sid]);
-
 
   // Auto-resize the textarea as you type
   useEffect(() => {
@@ -84,7 +89,13 @@ export default function TextBlock({setFileTitle}) {
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(wsRef, c_sid, pdfContentRef, setIsConnected, transcriptionRef);
+    const recognition = setUpRecognition(
+      wsRef,
+      c_sid,
+      pdfContentRef,
+      setIsConnected,
+      transcriptionRef
+    );
     if (isConnected) {
       // Close WebSocket connection
       if (wsRef.current) {
@@ -97,34 +108,36 @@ export default function TextBlock({setFileTitle}) {
       if (c_sid != null) {
         const ws = new WebSocket("ws://localhost:8000/ws");
 
-      ws.onopen = () => {
-        console.log("Connected to WebSocket server.");
-        setTimeout(() => setIsConnected(true), 0);
-        wsRef.current = ws; // Store WebSocket reference
+        ws.onopen = () => {
+          console.log("Connected to WebSocket server.");
+          setTimeout(() => setIsConnected(true), 0);
+          wsRef.current = ws; // Store WebSocket reference
 
-        // Start speech recognition when the connected
-        recognition.start();
-      };
+          // Start speech recognition when the connected
+          recognition.start();
+        };
 
-      ws.onmessage = async (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type === "content") {
-            setContent(message.data);
-            console.log(message.data, c_sid);
-            createChat(c_sid, "speakwrite", message.data);
-            pdfContentRef.current = "";
-            transcriptionRef.current = "";
-            console.log(pdfContentRef.current + " inside onmessage " + transcriptionRef.current);
-          } else if (message.type === "title") {
-            setTitle(message.data);
-            setFileTitle(message.data);
-          }
-
+        ws.onmessage = async (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            if (message.type === "content") {
+              setContent(message.data);
+              console.log(message.data, c_sid);
+              createChat(c_sid, "speakwrite", message.data);
+              pdfContentRef.current = "";
+              transcriptionRef.current = "";
+              console.log(
+                pdfContentRef.current +
+                  " inside onmessage " +
+                  transcriptionRef.current
+              );
+            } else if (message.type === "title") {
+              setTitle(message.data);
+              setFileTitle(message.data);
+            }
           } catch (err) {
             console.error("Error parsing WebSocket message:", err);
           }
-         
         };
 
         ws.onerror = (error) => {
@@ -142,7 +155,6 @@ export default function TextBlock({setFileTitle}) {
     }
   };
 
-
   const handleDownloadPdf = () => {
     // Download the content as a PDF file
     const pdf = new jsPDF();
@@ -150,44 +162,54 @@ export default function TextBlock({setFileTitle}) {
     pdf.text(content, 20, 30);
     console.log(pdf);
     pdf.save("notes.pdf");
-  }
+  };
 
   return (
-    <div className="relative w-full bg-white p-10 rounded-lg shadow-md border border-gray-200 font-sw flex flex-col">
+    <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="New file"
-        className="w-full text-4xl font-bold text-gray-900 placeholder-gray-400 mb-4 outline-none bg-transparent flex-none"
+        className="w-full text-4xl font-bold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 mb-4 outline-none bg-transparent flex-none"
       />
 
       <textarea
         ref={contentRef}
         value={content}
-        // onChange={(e) => setContent(e.target.value)}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          setFileTitle(e.target.value.slice(0, 20));
-          createChat(c_sid, "speakwrite", e.target.value);
+          if (e.key === "Enter") {
+            setFileTitle(e.target.value.slice(0, 20));
+            createChat(c_sid, "speakwrite", e.target.value);
           }
         }}
         placeholder="Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black placeholder-gray-400 leading-relaxed flex-grow basis-0"
+        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
         rows={5}
       />
+
       <div className="flex justify-center basis-0 w-full mt-4">
-        <StartButton clickHandler={handleStartButtonClick} isConnected={isConnected}/>
+        <StartButton
+          clickHandler={handleStartButtonClick}
+          isConnected={isConnected}
+        />
       </div>
+
       <div className="absolute bottom-0 right-0">
-        <MediaParser transcriptionRef = {transcriptionRef} pdfContentRef={pdfContentRef}/>
+        <MediaParser
+          transcriptionRef={transcriptionRef}
+          pdfContentRef={pdfContentRef}
+        />
       </div>
 
-      <div className="absolute bottom-0 left-0 p-2">
-        <DownloadPdf handle={handleDownloadPdf}/>
+      <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
+        <DownloadPdf
+          handle={handleDownloadPdf}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
+        />
+        <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
       </div>
-
     </div>
   );
 }
