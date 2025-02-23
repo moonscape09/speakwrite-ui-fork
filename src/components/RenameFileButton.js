@@ -3,19 +3,20 @@ import { useState } from "react";
 import Form from 'next/form';
 import { renameSession } from "@/lib/api";
 
-export const handleRenameSubmit = (e, fileID, filename, setRenaming, setTriggerAfterRename, setFileBeingRenamed) => {
-    filename = filename.length == 0 ? "Unnamed file" : filename;
+export const handleRenameSubmit = (e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed) => {
 
     e.preventDefault(); // prevents page reload
     setRenaming(false); // renaming state for current file is set to false
     setFileBeingRenamed(null); // no active file being renamed anymore
 
     try {
-        renameSession(fileID, filename);
+        renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename);
         setTriggerAfterRename((rename) => !rename);
     } catch (error) {
         console.error("Renaming failed: ", error);
     }
+
+    setFilename("");
 }
 
 export default function RenameFileButton( { className, fileID, setTriggerAfterRename, setFileBeingRenamed }) {
@@ -41,7 +42,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
             }
             {renaming &&
                     <Form
-                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setRenaming, setTriggerAfterRename, setFileBeingRenamed)}>
+                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed)}>
                         <input
                             type="text"
                             value={filename}
