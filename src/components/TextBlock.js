@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
+import { sessionsExist } from "./FilePanel";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
@@ -60,8 +61,8 @@ export default function TextBlock({setFileTitle}) {
   useEffect(() => {
     async function intializeSess() {
         if (c_sid === null){
-        if (c_uid != null){
-        const session = await createSession({user_id:c_uid, context:{}});
+        if (c_uid != null && sessionsExist){ // check if a session already exists, making it unnecessary to create a new one
+        const session = await createSession({session_name: "New file", user_id:c_uid, context:{}});
 
         if (session && session.session_id){
           setCsid(session.session_id)
@@ -157,7 +158,7 @@ export default function TextBlock({setFileTitle}) {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Session 1"
+        placeholder="New file"
         className="w-full text-4xl font-bold text-gray-900 placeholder-gray-400 mb-4 outline-none bg-transparent flex-none"
       />
 
