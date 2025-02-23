@@ -1,4 +1,4 @@
-import { SquarePen } from 'lucide-react';
+import { FilePlus } from 'lucide-react';
 import { createSession } from '@/lib/api';
 
 const handleAddFileButton = async (setFiles) => {
@@ -15,7 +15,7 @@ export default function AddFileButton( { setFiles } ) {
             onClick={() => handleAddFileButton(setFiles)}
             className="mt-2 w-fit bg-transparent cursor-pointer hover:bg-gray-300 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
             >
-            <SquarePen size={22}/>
+            <FilePlus size={22}/>
         </button>
     );
 }
