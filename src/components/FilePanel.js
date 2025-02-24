@@ -3,17 +3,17 @@ import AddFileButton from "@/components/AddFileButton";
 import { useState, useEffect } from "react";
 import { fetchSessions } from "@/lib/api";
 
-export let sessionsExist;
+export let topMostSession;
 
-export default function FilePanel({ onClose }) {
+export default function FilePanel({ onClose, initialSessionExists }) {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
     const fetchSessionNames = async () => {
       try {
         const fetchedSessions = await fetchSessions();
-        sessionsExist = fetchedSessions.size > 0;
         if (Array.isArray(fetchedSessions)) {
+          topMostSession = fetchedSessions[0];
           setFiles(fetchedSessions.map((session) => session.session_name));
         }
       } catch (error) {
@@ -21,8 +21,7 @@ export default function FilePanel({ onClose }) {
       }
     };
     fetchSessionNames();
-  }, []); // only on mount
-
+  }, [initialSessionExists]);
   return (
     <div
       id="file_panel"
