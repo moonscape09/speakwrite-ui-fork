@@ -1,10 +1,9 @@
 import "../../styles/global.css";
-import HomePage from '@/components/HomePage';
+import HomePage from "@/components/HomePage";
 
 export default async function App() {
-
   return (
-    <main className='w-full'>
+    <main className="w-full">
       <HomePage />
     </main>
   );
