@@ -4,7 +4,7 @@ import { createSession } from '@/lib/api';
 const handleAddFileButton = async (setFiles) => {
     try {
         const newSession = await createSession({session_name: "New file", user_id: 1, context:{}}) // TODO: will have to manage the actual user id state, this will likely be addressed after auth
-        setFiles((prevFiles) => [...prevFiles, newSession.session_name]) // added the setter here to force React to re-render and display the newly created file
+        setFiles((prevFiles) => [...prevFiles, {"session_name": newSession.session_name, "session_id": newSession.session_id}]) // added the setter here to force React to re-render and display the newly created file
     } catch (error) {
         console.log("Error in creating new session", error);
     }
