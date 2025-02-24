@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { sessionsExist } from "./FilePanel";
+import { topMostSession } from "./FilePanel";
 import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
@@ -11,7 +11,7 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({ setFileTitle }) {
+export default function TextBlock({ setFileTitle, initialSessionExists, setInitialSessionExists }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -59,8 +59,11 @@ export default function TextBlock({ setFileTitle }) {
 
   useEffect(() => {
     async function intializeSess() {
-      if (c_sid === null) {
-        if (c_uid != null && sessionsExist) {
+      if (topMostSession) {
+        setCsid(topMostSession.session_id);
+      }
+      else {
+        if (c_uid != null) {
           // check if a session already exists, making it unnecessary to create a new one
           const session = await createSession({
             session_name: "New file",
@@ -72,12 +75,13 @@ export default function TextBlock({ setFileTitle }) {
             setCsid(session.session_id);
             console.log(session);
           }
+          setInitialSessionExists(true);
         }
       }
     }
 
     intializeSess();
-  }, [c_uid, c_sid]);
+  }, [c_uid]);
 
   // Auto-resize the textarea as you type
   useEffect(() => {

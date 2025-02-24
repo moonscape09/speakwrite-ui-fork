@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
+  const [initialSessionExists, setInitialSessionExists] = useState(false); // state to check if there is one session
 
   function togglePanel() {
     setIsOpen(!isOpen);
@@ -28,8 +29,8 @@ export default function HomePage() {
           />
         </button>
       )}
-      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} />}
-      <TextBlock setFileTitle={setFileTitle} />
+      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} initialSessionExists={initialSessionExists}/>}
+      <TextBlock setFileTitle={setFileTitle} setInitialSessionExists={setInitialSessionExists} />
     </div>
   );
 }
