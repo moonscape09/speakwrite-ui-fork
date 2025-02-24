@@ -34,7 +34,7 @@ export default function FilePanel({ onClose, initialSessionExists }) {
   return (
     <div
       id="file_panel"
-      className="w-64 bg-gray-200 dark:bg-gray-800 p-5 border-r mr-2 rounded-lg border-gray-300 dark:border-gray-600 shadow-md font-sw"
+      className="w-64 h-[95vh] bg-gray-200 dark:bg-gray-800 p-5 border-r mr-2 rounded-lg border-gray-300 dark:border-gray-600 shadow-md font-sw flex flex-col"
     >
       <div className="flex">
         <h2 className="text-xl text-black dark:text-white font-bold mb-4 flex-grow">Files</h2>
