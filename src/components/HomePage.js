@@ -30,7 +30,7 @@ export default function HomePage() {
           />
         </button>
       )}
-      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} initialSessionExists={initialSessionExists} setCurrentFileID={setCurrentFileID}/>}
+      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} initialSessionExists={initialSessionExists} setCurrentFileID={setCurrentFileID} currentFileID={currentFileID}/>}
       <TextBlock setFileTitle={setFileTitle} setInitialSessionExists={setInitialSessionExists} currentFileID={currentFileID} />
     </div>
   );

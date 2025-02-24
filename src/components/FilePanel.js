@@ -6,7 +6,7 @@ import { fetchSessions } from "@/lib/api";
 
 export let topMostSession;
 
-export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID }) {
+export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID, currentFileID }) {
   const [files, setFiles] = useState([]);
 
   // checks for the file actively being renamed, on which we display as a text area rather than the file name on the panel
@@ -49,10 +49,10 @@ export default function FilePanel({ onClose, initialSessionExists, setCurrentFil
         {files.map((file) => (
           <li
             key={file.session_id}
-            className="group text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 text-lg rounded-md cursor-pointer flex justify-between items-center"
+            className={`group text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 text-lg rounded-md cursor-pointer flex justify-between items-center ${file.session_id == currentFileID ? "dark:bg-gray-600 bg-gray-300" : ""}`}
           >
             {file.session_id != fileBeingRenamed &&
-              <button onClick={() => (setCurrentFileID(file.session_id))}>{file.session_name}</button>
+              <button onClick={() => {setCurrentFileID(file.session_id)}}>{file.session_name}</button>
             }
             <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterRename={setTriggerAfterRename} setFileBeingRenamed={setFileBeingRenamed} />
           </li>
