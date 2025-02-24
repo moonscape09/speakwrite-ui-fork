@@ -28,7 +28,7 @@ export default function FilePanel({ onClose, initialSessionExists }) {
       }
     };
     fetchSessionNames();
-  }, [initialSessionExists, triggerAfterRename]) // only on mount or after renaming
+  }, [initialSessionExists, triggerAfterRename]) // only on mount or initial session creation or after renaming
 
 
   return (

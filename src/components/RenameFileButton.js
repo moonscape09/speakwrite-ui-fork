@@ -3,20 +3,19 @@ import { useState } from "react";
 import Form from 'next/form';
 import { renameSession } from "@/lib/api";
 
-export const handleRenameSubmit = (e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed) => {
-
+export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed) => {
     e.preventDefault(); // prevents page reload
     setRenaming(false); // renaming state for current file is set to false
     setFileBeingRenamed(null); // no active file being renamed anymore
 
     try {
-        renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename);
+        await renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename);
         setTriggerAfterRename((rename) => !rename);
+        setFilename("");
     } catch (error) {
         console.error("Renaming failed: ", error);
     }
 
-    setFilename("");
 }
 
 export default function RenameFileButton( { className, fileID, setTriggerAfterRename, setFileBeingRenamed }) {
@@ -60,3 +59,5 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
         </div>
     )
 }
+
+// TODO issue with renaming
