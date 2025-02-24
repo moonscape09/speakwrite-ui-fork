@@ -36,7 +36,7 @@ export const createSession = async ({session_name, user_id, context}) => {
         return null;
     }
 }
-    
+
 export const fetchSessions = async ()  => {
     try {
         const response = await axios.get(`${API_BASE_URL}/sessions`);
@@ -44,6 +44,16 @@ export const fetchSessions = async ()  => {
     }
     catch (error) {
         console.error("Error fetching session:", error);
+        return null;
+    }
+}
+
+export const renameSession = async (session_id, new_session_name) => {
+    try {
+        const response = axios.patch(`${API_BASE_URL}/sessions/${session_id}`, { "new_session_name": new_session_name }); // partial resource update
+        return response.data;
+    } catch (error) {
+        console.error("Error renaming file: ", error);
         return null;
     }
 }
