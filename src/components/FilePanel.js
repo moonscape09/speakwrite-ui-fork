@@ -50,10 +50,9 @@ export default function FilePanel({ onClose, initialSessionExists, setCurrentFil
           <li
             key={file.session_id}
             className={`group text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 text-lg rounded-md cursor-pointer flex justify-between items-center ${file.session_id == currentFileID ? "dark:bg-gray-600 bg-gray-300" : ""}`}
+            onClick={() => {setCurrentFileID(file.session_id)}}
           >
-            {file.session_id != fileBeingRenamed &&
-              <button onClick={() => {setCurrentFileID(file.session_id)}}>{file.session_name}</button>
-            }
+            {file.session_id != fileBeingRenamed && file.session_name}
             <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterRename={setTriggerAfterRename} setFileBeingRenamed={setFileBeingRenamed} />
           </li>
         ))}

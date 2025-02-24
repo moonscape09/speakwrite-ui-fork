@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { topMostSession } from "./FilePanel";
-import { createChat, createUser, createSession, fetchChats, fetchSession } from "@/lib/api";
+import { createChat, createUser, createSession, fetchSession } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -26,22 +26,7 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
   const transcriptionRef = useRef("");
   // setFileTitle("{}");
 
-  // Fetch the latest chat message for the current session on component mount
-  useEffect(() => {
-    async function fetchLatestChat() {
-      const chats = await fetchChats();
-      if (chats && chats.length > 0) {
-        console.log(chats);
-        const latestChat = chats[0]; // Get the latest chat message
-        setContent(latestChat.message);
-        if (c_sid == null) {
-          setCsid(latestChat.session_id);
-        }
-      }
-    }
 
-    fetchLatestChat();
-  }, [c_sid]);
 
   useEffect(() => {
     async function intializeUser() {
@@ -100,6 +85,7 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
 
     if (currentFileID) {
       fetchSpecificSession(currentFileID);
+      setCsid(currentFileID)
     }
   }, [currentFileID])
 
