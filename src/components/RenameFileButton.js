@@ -59,5 +59,3 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
         </div>
     )
 }
-
-// TODO issue with renaming
