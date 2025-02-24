@@ -28,7 +28,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
             {!renaming &&
             <div className={className}>
                 <button
-                    className="cursor-pointer cursor-pointer hover:bg-gray-300 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
+                    className="dark:text-white cursor-pointer cursor-pointer hover:bg-gray-300 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
                     onClick={() => {
                             setRenaming(true);
                             setFileBeingRenamed(fileID)}
@@ -52,7 +52,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
                                 setFilename("");
                             }}
                             autoFocus
-                            className="border p-1 rounded w-full"
+                            className="border p-1 rounded w-full dark:bg-gray-800"
                             />
                     </Form>
                 }
