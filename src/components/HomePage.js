@@ -8,6 +8,7 @@ export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
   const [initialSessionExists, setInitialSessionExists] = useState(false); // state to check if there is one session
+  const [currentFileID, setCurrentFileID] = useState(); // State for the current file, contains the ID
 
   function togglePanel() {
     setIsOpen(!isOpen);
@@ -29,8 +30,8 @@ export default function HomePage() {
           />
         </button>
       )}
-      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} initialSessionExists={initialSessionExists}/>}
-      <TextBlock setFileTitle={setFileTitle} setInitialSessionExists={setInitialSessionExists} />
+      {isOpen && <FilePanel fileTitle={fileTitle} onClose={togglePanel} initialSessionExists={initialSessionExists} setCurrentFileID={setCurrentFileID} currentFileID={currentFileID}/>}
+      <TextBlock setFileTitle={setFileTitle} setInitialSessionExists={setInitialSessionExists} currentFileID={currentFileID} />
     </div>
   );
 }

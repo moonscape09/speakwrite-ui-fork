@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { topMostSession } from "./FilePanel";
-import { createChat, createUser, createSession, fetchChats } from "@/lib/api";
+import { createChat, createUser, createSession, fetchSession } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -11,7 +11,7 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({ setFileTitle, initialSessionExists, setInitialSessionExists }) {
+export default function TextBlock({ setFileTitle, setInitialSessionExists, currentFileID }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -26,22 +26,7 @@ export default function TextBlock({ setFileTitle, initialSessionExists, setIniti
   const transcriptionRef = useRef("");
   // setFileTitle("{}");
 
-  // Fetch the latest chat message for the current session on component mount
-  useEffect(() => {
-    async function fetchLatestChat() {
-      const chats = await fetchChats();
-      if (chats && chats.length > 0) {
-        console.log(chats);
-        const latestChat = chats[0]; // Get the latest chat message
-        setContent(latestChat.message);
-        if (c_sid == null) {
-          setCsid(latestChat.session_id);
-        }
-      }
-    }
 
-    fetchLatestChat();
-  }, [c_sid]);
 
   useEffect(() => {
     async function intializeUser() {
@@ -90,6 +75,19 @@ export default function TextBlock({ setFileTitle, initialSessionExists, setIniti
       contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
   }, [content]);
+
+  useEffect(() => {
+    async function fetchSpecificSession(session_id) {
+      const fetched_session = await fetchSession(session_id);
+      setContent(fetched_session.context.message);
+      contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
+    }
+
+    if (currentFileID) {
+      fetchSpecificSession(currentFileID);
+      setCsid(currentFileID)
+    }
+  }, [currentFileID])
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {

@@ -6,7 +6,7 @@ import { fetchSessions } from "@/lib/api";
 
 export let topMostSession;
 
-export default function FilePanel({ onClose, initialSessionExists }) {
+export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID, currentFileID }) {
   const [files, setFiles] = useState([]);
 
   // checks for the file actively being renamed, on which we display as a text area rather than the file name on the panel
@@ -20,7 +20,10 @@ export default function FilePanel({ onClose, initialSessionExists }) {
       try {
         const fetchedSessions = await fetchSessions();
         if (Array.isArray(fetchedSessions)) {
-          topMostSession = fetchedSessions[0];
+          topMostSession = await fetchedSessions[0];
+          if (topMostSession) {
+            setCurrentFileID(topMostSession.session_id); // set the current file to the topmost session (newest)
+          }
           setFiles(fetchedSessions.map(session => ({"session_name": session.session_name, "session_id": session.session_id})).reverse()); // TODO: reversing order of sessions on client-side for now, but let's discuss doing this on the DB service
         }
       } catch (error) {
@@ -43,10 +46,11 @@ export default function FilePanel({ onClose, initialSessionExists }) {
         </button>
       </div>
       <ul className="space-y-2 overflow-y-auto">
-        {files.map((file, index) => (
+        {files.map((file) => (
           <li
-            key={index}
-            className="group text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 text-lg rounded-md cursor-pointer flex justify-between items-center"
+            key={file.session_id}
+            className={`group text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 text-lg rounded-md cursor-pointer flex justify-between items-center ${file.session_id == currentFileID ? "dark:bg-gray-600 bg-gray-300" : ""}`}
+            onClick={() => {setCurrentFileID(file.session_id)}}
           >
             {file.session_id != fileBeingRenamed && file.session_name}
             <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterRename={setTriggerAfterRename} setFileBeingRenamed={setFileBeingRenamed} />
