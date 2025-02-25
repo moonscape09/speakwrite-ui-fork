@@ -6,21 +6,19 @@ import { fetchSessions } from "@/lib/api";
 
 export let topMostSession;
 
-export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID, currentFileID }) {
+export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID, currentFileID, triggerAfterRename, setTriggerAfterRename }) {
   const [files, setFiles] = useState([]);
 
   // checks for the file actively being renamed, on which we display as a text area rather than the file name on the panel
   const [fileBeingRenamed, setFileBeingRenamed] = useState();
 
-  // used for triggering a fetch of all sessions to update session list when a session has been renamed
-  const [triggerAfterRename, setTriggerAfterRename] = useState(false);
 
   useEffect(() => {
     const fetchSessionNames = async () => {
       try {
         const fetchedSessions = await fetchSessions();
         if (Array.isArray(fetchedSessions)) {
-          topMostSession = await fetchedSessions[0];
+          topMostSession = await fetchedSessions[fetchedSessions.length - 1];
           if (topMostSession) {
             setCurrentFileID(topMostSession.session_id); // set the current file to the topmost session (newest)
           }

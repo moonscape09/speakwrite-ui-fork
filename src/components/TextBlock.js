@@ -1,9 +1,9 @@
 "use client";
-
+import Form from "next/form";
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
 import { topMostSession } from "./FilePanel";
-import { createChat, createUser, createSession, fetchSession } from "@/lib/api";
+import { createChat, createUser, createSession, fetchSession, renameSession } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -11,7 +11,7 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({ setFileTitle, setInitialSessionExists, currentFileID }) {
+export default function TextBlock({ setFileTitle, setInitialSessionExists, currentFileID, triggerAfterRename, setTriggerAfterRename }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -80,14 +80,15 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
     async function fetchSpecificSession(session_id) {
       const fetched_session = await fetchSession(session_id);
       setContent(fetched_session.context.message);
+      setTitle(fetched_session.session_name);
       contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
     }
 
     if (currentFileID) {
       fetchSpecificSession(currentFileID);
-      setCsid(currentFileID)
+      setCsid(currentFileID);
     }
-  }, [currentFileID])
+  }, [currentFileID, triggerAfterRename])
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
@@ -166,15 +167,23 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
     pdf.save("notes.pdf");
   };
 
+  const titleSubmit = async (e) => {
+    e.preventDefault(); //prevent page reload
+    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
+    setTriggerAfterRename((rename) => !rename);
+  }
+
   return (
     <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="New file"
-        className="w-full text-4xl font-bold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 mb-4 outline-none bg-transparent flex-none"
-      />
+      <Form onSubmit={(e) => titleSubmit(e)}>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="New file"
+          className="w-full text-4xl font-bold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 mb-4 outline-none bg-transparent flex-none"
+        />
+      </Form>
 
       <textarea
         ref={contentRef}
