@@ -169,7 +169,7 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
 
   const titleSubmit = async (e) => {
     e.preventDefault(); //prevent page reload
-    await renameSession(currentFileID, title);
+    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
     setTriggerAfterRename((rename) => !rename);
   }
 
