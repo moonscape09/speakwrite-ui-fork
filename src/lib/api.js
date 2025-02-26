@@ -26,9 +26,9 @@ export const createChat = async ( session_id, sender, message) => {
 
 
 
-export const createSession = async ({user_id, context}) => {
+export const createSession = async ({session_name, user_id, context}) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/sessions`, { user_id: user_id, context: context});
+        const response = await axios.post(`${API_BASE_URL}/sessions`, { session_name: session_name, user_id: user_id, context: context});
         return response.data;
     }
     catch (error){
@@ -36,7 +36,38 @@ export const createSession = async ({user_id, context}) => {
         return null;
     }
 }
-    
+
+export const fetchSessions = async ()  => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/sessions`);
+        return response.data;
+    }
+    catch (error) {
+        console.error("Error fetching session:", error);
+        return null;
+    }
+}
+
+export const fetchSession = async (session_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/sessions/${session_id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching session with ID: ", session_id, error);
+        return null;
+    }
+}
+
+export const renameSession = async (session_id, new_session_name) => {
+    try {
+        const response = axios.patch(`${API_BASE_URL}/sessions/${session_id}`, { "new_session_name": new_session_name }); // partial resource update
+        return response.data;
+    } catch (error) {
+        console.error("Error renaming file: ", error);
+        return null;
+    }
+}
+
 export const createUser = async ( username, email, password) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/users`, { username: username, email: email, password: password});
