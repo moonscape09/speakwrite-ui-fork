@@ -60,7 +60,7 @@ export const fetchSession = async (session_id) => {
 
 export const renameSession = async (session_id, new_session_name) => {
     try {
-        const response = axios.patch(`${API_BASE_URL}/sessions/${session_id}`, { "new_session_name": new_session_name }); // partial resource update
+        const response = await axios.patch(`${API_BASE_URL}/sessions/${session_id}`, { "new_session_name": new_session_name }); // partial resource update
         return response.data;
     } catch (error) {
         console.error("Error renaming file: ", error);
