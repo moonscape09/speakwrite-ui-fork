@@ -12,6 +12,7 @@
     "@huggingface/inference": "^3.3.6",
     "@tailwindcss/postcss": "^4.0.3",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "jspdf": "^2.5.2",
     "lucide-react": "^0.475.0",
     "next": "^15.1.6",
