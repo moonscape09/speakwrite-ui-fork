@@ -4,9 +4,7 @@ import RenameFileButton from "@/components/RenameFileButton";
 import { useState, useEffect } from "react";
 import { fetchSessions } from "@/lib/api";
 
-export let topMostSession;
-
-export default function FilePanel({ onClose, initialSessionExists, setCurrentFileID, currentFileID, triggerAfterRename, setTriggerAfterRename }) {
+export default function FilePanel({ onClose, setCurrentFileID, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
   const [files, setFiles] = useState([]);
 
   // checks for the file actively being renamed, on which we display as a text area rather than the file name on the panel
@@ -18,18 +16,20 @@ export default function FilePanel({ onClose, initialSessionExists, setCurrentFil
       try {
         const fetchedSessions = await fetchSessions();
         if (Array.isArray(fetchedSessions)) {
-          topMostSession = await fetchedSessions[fetchedSessions.length - 1];
+          const topMostSession = fetchedSessions[0];
           if (topMostSession) {
             setCurrentFileID(topMostSession.session_id); // set the current file to the topmost session (newest)
+          } else {
+            setCurrentFileID(-1); // set to -1, from null, to establish existence which is important in TextBlock.js
           }
-          setFiles(fetchedSessions.map(session => ({"session_name": session.session_name, "session_id": session.session_id})).reverse()); // TODO: reversing order of sessions on client-side for now, but let's discuss doing this on the DB service
+          setFiles(fetchedSessions.map(session => ({"session_name": session.session_name, "session_id": session.session_id})));
         }
       } catch (error) {
         console.error("Error fetching files: ", error);
       }
     };
     fetchSessionNames();
-  }, [initialSessionExists, triggerAfterRename]) // only on mount or initial session creation or after renaming
+  }, [triggerAfterUpdate]) // only on mount or initial session creation or after renaming
 
 
   return (
@@ -51,11 +51,11 @@ export default function FilePanel({ onClose, initialSessionExists, setCurrentFil
             onClick={() => {setCurrentFileID(file.session_id)}}
           >
             {file.session_id != fileBeingRenamed && file.session_name}
-            <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterRename={setTriggerAfterRename} setFileBeingRenamed={setFileBeingRenamed} />
+            <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} />
           </li>
         ))}
       </ul>
-      <AddFileButton files={files} setFiles={setFiles} />
+      <AddFileButton files={files} setFiles={setFiles} setTriggerAfterUpdate={setTriggerAfterUpdate} />
     </div>
   );
 }
