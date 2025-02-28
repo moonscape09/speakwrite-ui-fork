@@ -20,8 +20,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
         // const audioBlob = new Blob([file], { type: "audio/mpeg" });
         // const formData = new FormData();
         // formData.append("file", audioBlob, file.name);
-
-        const hf = new HfInference("xxxxxxxx");
+        const hf = new HfInference(process.env.NEXT_PUBLIC_HF_TOKEN);
         //const response = await hf.pipeline("automatic-speech-recognition", "openai/whisper-tiny")(formData);
         const response = await hf.automaticSpeechRecognition({
           data: file,

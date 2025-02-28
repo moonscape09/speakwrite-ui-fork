@@ -1,6 +1,10 @@
 import axios from "axios";
 
+<<<<<<< HEAD
 const API_BASE_URL = "https://speakwrite.ddns.net";
+=======
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_SERVICE;
+>>>>>>> 6b61604 ([DEV 3.0] Using ENV variables)
 
 export const fetchChats = async () => {
     try {
