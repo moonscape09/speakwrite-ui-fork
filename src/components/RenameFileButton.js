@@ -3,14 +3,14 @@ import { useState } from "react";
 import Form from 'next/form';
 import { renameSession } from "@/lib/api";
 
-export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed) => {
+export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed) => {
     e.preventDefault(); // prevents page reload
     setRenaming(false); // renaming state for current file is set to false
     setFileBeingRenamed(null); // no active file being renamed anymore
 
     try {
         await renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename);
-        setTriggerAfterRename((rename) => !rename);
+        setTriggerAfterUpdate((update) => !update);
         setFilename("");
     } catch (error) {
         console.error("Renaming failed: ", error);
@@ -18,7 +18,7 @@ export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRe
 
 }
 
-export default function RenameFileButton( { className, fileID, setTriggerAfterRename, setFileBeingRenamed }) {
+export default function RenameFileButton( { className, fileID, setTriggerAfterUpdate, setFileBeingRenamed }) {
     const [renaming, setRenaming ] = useState(false);
     const [filename, setFilename] = useState("");
 
@@ -41,7 +41,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterRe
             }
             {renaming &&
                     <Form
-                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setFilename, setRenaming, setTriggerAfterRename, setFileBeingRenamed)}>
+                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed)}>
                         <input
                             type="text"
                             value={filename}
