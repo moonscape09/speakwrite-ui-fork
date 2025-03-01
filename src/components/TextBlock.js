@@ -2,7 +2,6 @@
 import Form from "next/form";
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { topMostSession } from "./FilePanel";
 import { createChat, createUser, createSession, fetchSession, renameSession } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
@@ -11,7 +10,7 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({ setFileTitle, setInitialSessionExists, currentFileID, triggerAfterRename, setTriggerAfterRename }) {
+export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -44,28 +43,25 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
 
   useEffect(() => {
     async function intializeSess() {
-      if (topMostSession) {
-        setCsid(topMostSession.session_id);
-      }
-      else {
-        if (c_uid != null) {
-          // check if a session already exists, making it unnecessary to create a new one
-          const session = await createSession({
-            session_name: "New file",
-            user_id: c_uid,
-            context: {},
-          });
+      // check if a session already exists, making it unnecessary to create a new one
+      const session = await createSession({
+        session_name: "New file",
+        user_id: c_uid,
+        context: {},
+      });
 
-          if (session && session.session_id) {
-            setCsid(session.session_id);
-            console.log(session);
-          }
-          setInitialSessionExists(true);
-        }
+      if (session && session.session_id) {
+        setCsid(session.session_id);
+        console.log(session);
       }
+      setTriggerAfterUpdate((update) => (!update));
     }
 
-    intializeSess();
+    if  (currentFileID == -1 && c_uid != null) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
+      intializeSess();
+    } else {
+      setCsid(currentFileID);
+    }
   }, [c_uid]);
 
   // Auto-resize the textarea as you type
@@ -84,11 +80,11 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
       contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
     }
 
-    if (currentFileID) {
+    if (currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
       fetchSpecificSession(currentFileID);
       setCsid(currentFileID);
     }
-  }, [currentFileID, triggerAfterRename])
+  }, [currentFileID, triggerAfterUpdate])
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
@@ -170,7 +166,7 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
   const titleSubmit = async (e) => {
     e.preventDefault(); //prevent page reload
     await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
-    setTriggerAfterRename((rename) => !rename);
+    setTriggerAfterUpdate((update) => !update);
   }
 
   return (
@@ -191,7 +187,6 @@ export default function TextBlock({ setFileTitle, setInitialSessionExists, curre
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            setFileTitle(e.target.value.slice(0, 20));
             createChat(c_sid, "speakwrite", e.target.value);
           }
         }}
