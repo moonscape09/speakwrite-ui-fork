@@ -68,6 +68,16 @@ export const renameSession = async (session_id, new_session_name) => {
     }
 }
 
+export const deleteSession = async (session_id) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/sessions/${session_id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting session ID: ", error);
+        return null;
+    }
+}
+
 export const createUser = async ( username, email, password) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/users`, { username: username, email: email, password: password});
