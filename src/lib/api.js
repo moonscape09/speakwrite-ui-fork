@@ -78,3 +78,26 @@ export const createUser = async ( username, email, password) => {
         return null;
     }
 }
+
+export const loginUser = async (email, password) => {
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+      return data;
+    } catch (error) {
+      // You can extract more detailed error information if needed.
+      throw new Error("Login failed. Please check your credentials.");
+    }
+  };
+  
+  export const signupUser = async (username, email, password) => {
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/signup`, {
+        username,
+        email,
+        password,
+      });
+      return data;
+    } catch (error) {
+      throw new Error("Signup failed. Please try again.");
+    }
+  };
