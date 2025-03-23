@@ -75,9 +75,15 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   useEffect(() => {
     async function fetchSpecificSession(session_id) {
       const fetched_session = await fetchSession(session_id);
+
+      if (!fetched_session.context) {
+        contentRef.current.value = "";
+        return;
+      }
+
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
-      contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
+      contentRef.current.value = fetched_session.context.message || ""; // if still undefined then it'll just be an empty string
     }
 
     if (currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
