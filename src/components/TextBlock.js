@@ -118,7 +118,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
           setTimeout(() => setIsConnected(true), 0);
           wsRef.current = ws; // Store WebSocket reference
 
-          // Start speech recognition when the connected
+          // Start speech recognition when connected
           recognition.start();
         };
 
@@ -128,7 +128,10 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
             if (message.type === "content") {
               setContent(message.data);
               console.log(message.data, c_sid);
-              createChat(c_sid, "speakwrite", message.data);
+              createChat(c_sid, "speakwrite", {
+                content: message.data,
+                tone: tone, // Include tone in the object sent to the server
+              });
               pdfContentRef.current = "";
               transcriptionRef.current = "";
               console.log(
