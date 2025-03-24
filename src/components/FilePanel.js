@@ -4,7 +4,7 @@ import RenameFileButton from "@/components/RenameFileButton";
 import { useState, useEffect } from "react";
 import { fetchSessions } from "@/lib/api";
 
-export default function FilePanel({ onClose, setCurrentFileID, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
+export default function FilePanel({ onClose, setCurrentFileID, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
   const [files, setFiles] = useState([]);
 
   // checks for the file actively being renamed, on which we display as a text area rather than the file name on the panel
@@ -14,7 +14,7 @@ export default function FilePanel({ onClose, setCurrentFileID, currentFileID, tr
   useEffect(() => {
     const fetchSessionNames = async () => {
       try {
-        const fetchedSessions = await fetchSessions();
+        const fetchedSessions = await fetchSessions(token);
         if (Array.isArray(fetchedSessions)) {
           const topMostSession = fetchedSessions[0];
           if (topMostSession) {
@@ -28,8 +28,8 @@ export default function FilePanel({ onClose, setCurrentFileID, currentFileID, tr
         console.error("Error fetching files: ", error);
       }
     };
-    fetchSessionNames();
-  }, [triggerAfterUpdate]) // only on mount or initial session creation or after renaming
+    if (token) fetchSessionNames();
+  }, [triggerAfterUpdate, token]) // only on mount or initial session creation or after renaming
 
 
   return (
@@ -55,7 +55,7 @@ export default function FilePanel({ onClose, setCurrentFileID, currentFileID, tr
           </li>
         ))}
       </ul>
-      <AddFileButton files={files} setFiles={setFiles} setTriggerAfterUpdate={setTriggerAfterUpdate} />
+      <AddFileButton files={files} setFiles={setFiles} setTriggerAfterUpdate={setTriggerAfterUpdate} token={token} />
     </div>
   );
 }

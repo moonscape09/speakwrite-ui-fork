@@ -10,12 +10,12 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 
-export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
+export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
-  const [c_uid, setCuid] = useState(null);
-  const [c_sid, setCsid] = useState(null);
+  // const [c_uid, setCuid] = useState(null);
+  const [c_sid, setCsid] = useState(-1);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
   // const [transcription, setTranscription] = useState("");
@@ -27,28 +27,27 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
 
 
 
-  useEffect(() => {
-    async function intializeUser() {
-      if (c_uid === null) {
-        const user = await createUser("John Doe", "a@b.c", "12345678");
+  // useEffect(() => {
+  //   async function intializeUser() {
+  //     if (c_uid === null) {
+  //       const user = await createUser("John Doe", "a@b.c", "12345678");
 
-        if (user && user.id) {
-          setCuid(user.id);
-          console.log(user);
-        }
-      }
-    }
-    intializeUser();
-  }, [c_uid]);
+  //       if (user && user.id) {
+  //         setCuid(user.id);
+  //         console.log(user);
+  //       }
+  //     }
+  //   }
+  //   intializeUser();
+  // }, [c_uid]);
 
   useEffect(() => {
     async function intializeSess() {
       // check if a session already exists, making it unnecessary to create a new one
       const session = await createSession({
         session_name: "New file",
-        user_id: c_uid,
-        context: {},
-      });
+        context: {}
+      }, token);
 
       if (session && session.session_id) {
         setCsid(session.session_id);
@@ -57,12 +56,12 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       setTriggerAfterUpdate((update) => (!update));
     }
 
-    if  (currentFileID == -1 && c_uid != null) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
+    if  (currentFileID == -1 && token) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
       intializeSess();
     } else {
       setCsid(currentFileID);
     }
-  }, [c_uid]);
+  }, [token]);
 
   // Auto-resize the textarea as you type
   useEffect(() => {
@@ -74,17 +73,17 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
 
   useEffect(() => {
     async function fetchSpecificSession(session_id) {
-      const fetched_session = await fetchSession(session_id);
+      const fetched_session = await fetchSession(session_id, token);
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
       contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
     }
 
-    if (currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
+    if (currentFileID != null && currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
       fetchSpecificSession(currentFileID);
       setCsid(currentFileID);
     }
-  }, [currentFileID, triggerAfterUpdate])
+  }, [currentFileID, triggerAfterUpdate, token]);
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
@@ -93,7 +92,8 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       c_sid,
       pdfContentRef,
       setIsConnected,
-      transcriptionRef
+      transcriptionRef,
+      token
     );
     if (isConnected) {
       // Close WebSocket connection
@@ -122,7 +122,8 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
             if (message.type === "content") {
               setContent(message.data);
               console.log(message.data, c_sid);
-              createChat(c_sid, "speakwrite", message.data);
+              console.log(token)
+              createChat(c_sid, "speakwrite", message.data, token);
               pdfContentRef.current = "";
               transcriptionRef.current = "";
               console.log(
@@ -165,7 +166,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
 
   const titleSubmit = async (e) => {
     e.preventDefault(); //prevent page reload
-    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
+    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title, token);
     setTriggerAfterUpdate((update) => !update);
   }
 
@@ -187,7 +188,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            createChat(c_sid, "speakwrite", e.target.value);
+            createChat(c_sid, "speakwrite", e.target.value, token);
           }
         }}
         placeholder="Start writing your notes here..."

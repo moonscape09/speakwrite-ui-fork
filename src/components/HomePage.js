@@ -8,8 +8,11 @@ import { loginUser, signupUser } from "@/lib/api.js";
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
-  const [currentFileID, setCurrentFileID] = useState(); // current file ID
+  const [currentFileID, setCurrentFileID] = useState(-1); // current file ID
   const [triggerAfterUpdate, setTriggerAfterUpdate] = useState(false);
+  const [token, setToken] = useState(() => {
+    return typeof window !== "undefined" ? localStorage.getItem("token") || null : null;
+  });
 
   // Authentication state and form states
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -47,6 +50,7 @@ export default function HomePage() {
       setLoginEmail("");
       setLoginPassword("");
       setLoginError("");
+      setToken(data.access_token);
     } catch (error) {
       setLoginError(error.message);
       console.error(error);
@@ -66,6 +70,7 @@ export default function HomePage() {
       setSignupEmail("");
       setSignupPassword("");
       setSignupError("");
+      setToken(data.access_token);
     } catch (error) {
       setSignupError(error.message);
       console.error(error);
@@ -75,6 +80,9 @@ export default function HomePage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
+    setCurrentFileID(null);
+    setTriggerAfterUpdate(false);
+    setToken(null);
   };
 
   return (
@@ -146,7 +154,9 @@ export default function HomePage() {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      onClick={() => setAuthModalOpen(false)}
+                      onClick={() => {setAuthModalOpen(false)
+                        setLoginError("");
+                      }}
                       className="mr-2 px-4 py-2 bg-gray-300 rounded"
                     >
                       Cancel
@@ -201,7 +211,9 @@ export default function HomePage() {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      onClick={() => setAuthModalOpen(false)}
+                      onClick={() => {setAuthModalOpen(false);
+                        setSignupError("");}
+                      }
                       className="mr-2 px-4 py-2 bg-gray-300 rounded"
                     >
                       Cancel
@@ -221,6 +233,8 @@ export default function HomePage() {
       )}
 
       {/* Left Panel Toggle Button */}
+      {isLoggedIn && (
+      <>
       {!isOpen && (
         <button
           onClick={togglePanel}
@@ -243,6 +257,7 @@ export default function HomePage() {
           currentFileID={currentFileID}
           triggerAfterUpdate={triggerAfterUpdate}
           setTriggerAfterUpdate={setTriggerAfterUpdate}
+          token={token} // Pass the user ID to the FilePanel
         />
       )}
       <TextBlock
@@ -250,7 +265,10 @@ export default function HomePage() {
         currentFileID={currentFileID}
         triggerAfterUpdate={triggerAfterUpdate}
         setTriggerAfterUpdate={setTriggerAfterUpdate}
+        token={token} // Pass the user ID
       />
+      </>
+      )}
     </div>
   );
 }
