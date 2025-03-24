@@ -9,6 +9,8 @@ import DownloadPdf from "./DownloadPdf";
 import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
+import TranslateButton from "./TranslateButton"; // ✅ Import TranslateButton
+
 
 export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
   const [title, setTitle] = useState(""); // State for the page title
@@ -24,7 +26,6 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   const pdfContentRef = useRef("");
   const transcriptionRef = useRef("");
   // setFileTitle("{}");
-
 
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       setTriggerAfterUpdate((update) => (!update));
     }
 
-    if  (currentFileID == -1 && c_uid != null) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
+    if (currentFileID == -1 && c_uid != null) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
       intializeSess();
     } else {
       setCsid(currentFileID);
@@ -84,7 +85,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       fetchSpecificSession(currentFileID);
       setCsid(currentFileID);
     }
-  }, [currentFileID, triggerAfterUpdate])
+  }, [currentFileID, triggerAfterUpdate]);
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
@@ -167,7 +168,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
     e.preventDefault(); //prevent page reload
     await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
     setTriggerAfterUpdate((update) => !update);
-  }
+  };
 
   return (
     <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
@@ -215,6 +216,9 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
         />
         <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
+      </div>
+      <div className="absolute top-0 right-0 m-4">
+      <TranslateButton content={content} setContent={setContent} />
       </div>
     </div>
   );
