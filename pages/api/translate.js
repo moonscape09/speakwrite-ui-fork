@@ -50,20 +50,15 @@ export default async function handler(req, res) {
       body: JSON.stringify({ inputs: text }),
     });
 
-    console.log("fetch fail");
     const data = await response.json();
-
-    console.log("fetch success");
 
     if (response.ok) {
       res.status(200).json({ translation: data[0].translation_text });
     } else {
       // If response isn't successful, return error from API
       res.status(500).json({ error: "Translation failed", details: data });
-      console.log("Hello")
     }
   } catch (error) {
-    console.log("byevye")
     res.status(500).json({ error: "Translation failed", details: error.message });
   }
 }

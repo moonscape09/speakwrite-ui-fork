@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 
 export default function TranslateButton({ content, setContent }) {
   const [isTranslating, setIsTranslating] = useState(false);
@@ -16,11 +16,6 @@ export default function TranslateButton({ content, setContent }) {
 
   const [currentTranslation, setCurrentTranslation] = useState("");
 
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
-    setSourceLanguage("English"); // Reset source language to English when text changes
-  };
-
   const handleTranslate = async () => {
     if (!content) return;
     setIsTranslating(true);
@@ -32,10 +27,7 @@ export default function TranslateButton({ content, setContent }) {
 
     while (retries < maxRetries && !translationSuccess) {
       try {
-        setTimeout(() => {
-          console.log("This message will appear after 3 seconds.");
-        }, 500);
-        const textToTranslate = currentTranslation || content;
+        const textToTranslate = content;
 
         const response = await fetch("/api/translate", {
           method: "POST",
@@ -50,7 +42,7 @@ export default function TranslateButton({ content, setContent }) {
         const data = await response.json();
 
         if (data.translation) {
-          setCurrentTranslation(data.translation);
+          //setCurrentTranslation(data.translation);
           setContent(data.translation);
           setSourceLanguage(selectedLanguage);
           translationSuccess = true; // Optionally update source language to target language
@@ -70,7 +62,7 @@ export default function TranslateButton({ content, setContent }) {
       <select
         value={sourceLanguage}
         onChange={(e) => setSourceLanguage(e.target.value)}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
       >
         {Object.keys(languages).map((lang) => (
           <option key={lang} value={lang}>
@@ -83,7 +75,7 @@ export default function TranslateButton({ content, setContent }) {
       <select
         value={selectedLanguage}
         onChange={(e) => setSelectedLanguage(e.target.value)}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
       >
         {Object.keys(languages).map((lang) => (
           <option key={lang} value={lang}>
