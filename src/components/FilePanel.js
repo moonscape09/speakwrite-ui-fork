@@ -51,7 +51,7 @@ export default function FilePanel({ onClose, setCurrentFileID, currentFileID, tr
             onClick={() => {setCurrentFileID(file.session_id)}}
           >
             {file.session_id != fileBeingRenamed && file.session_name}
-            <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} />
+            <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} token={token}/>
           </li>
         ))}
       </ul>

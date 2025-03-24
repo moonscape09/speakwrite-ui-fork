@@ -2,7 +2,7 @@
 import Form from "next/form";
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { createChat, createUser, createSession, fetchSession, renameSession } from "@/lib/api";
+import { createChat, createUser, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -44,6 +44,9 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   useEffect(() => {
     async function intializeSess() {
       // check if a session already exists, making it unnecessary to create a new one
+      const existingSessions = await fetchSessions(token);
+      
+      if (existingSessions && existingSessions.length === 0) {
       const session = await createSession({
         session_name: "New file",
         context: {}
@@ -55,6 +58,10 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       }
       setTriggerAfterUpdate((update) => (!update));
     }
+    else {
+      setCsid(existingSessions[0].session_id);
+    }
+  }
 
     if  (currentFileID == -1 && token) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
       intializeSess();
