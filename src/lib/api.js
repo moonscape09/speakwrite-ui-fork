@@ -72,8 +72,8 @@ export const loginUser = async (email, password) => {
       // You can extract more detailed error information if needed.
       throw new Error("Login failed. Please check your credentials.");
     }
-  };
 }
+
 
 export const deleteSession = async (session_id, token) => {
     try {
