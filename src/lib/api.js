@@ -1,5 +1,4 @@
 import axios from "axios";
-// import { headers } from "next/headers";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_SERVICE;
 
@@ -33,7 +32,7 @@ export const createSession = async ({session_name, context}, token) => {
     }
     catch (error){
         console.error("Error creating session:", error);
-        throw new Error("Failed to create session: " + error.message);        
+        throw new Error("Failed to create session: " + error.message);
     }
 }
 
@@ -65,17 +64,6 @@ export const renameSession = async (session_id, new_session_name, token) => {
         throw new Error("Failed to rename session: " + error.message);    }
 }
 
-// export const createUser = async ( username, email, password) => {
-//     try {
-//         const response = await axios.post(`${API_BASE_URL}/users`, { username: username, email: email, password: password});
-//         return response.data;
-//     }
-//     catch (error){
-//         console.error("Error creating user:", error);
-//         return null;
-//     }
-// }
-
 export const loginUser = async (email, password) => {
     try {
       const { data } = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
@@ -85,8 +73,19 @@ export const loginUser = async (email, password) => {
       throw new Error("Login failed. Please check your credentials.");
     }
   };
-  
-  export const signupUser = async (username, email, password) => {
+}
+
+export const deleteSession = async (session_id, token) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/sessions/${session_id}`, {headers:{Authorization: `Bearer ${token}`}});
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting session ID: ", error);
+        return null;
+    }
+}
+
+export const signupUser = async ( username, email, password) => {
     try {
       const { data } = await axios.post(`${API_BASE_URL}/auth/signup`, {
         username,
@@ -97,4 +96,4 @@ export const loginUser = async (email, password) => {
     } catch (error) {
       throw new Error("Signup failed. Please try again.");
     }
-  };
+}

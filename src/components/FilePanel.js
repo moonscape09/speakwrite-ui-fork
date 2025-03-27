@@ -1,5 +1,6 @@
 "use client";
 import AddFileButton from "@/components/AddFileButton";
+import DeleteFileButton from "@/components/DeleteFileButton";
 import RenameFileButton from "@/components/RenameFileButton";
 import { useState, useEffect } from "react";
 import { fetchSessions } from "@/lib/api";
@@ -51,7 +52,10 @@ export default function FilePanel({ onClose, setCurrentFileID, currentFileID, tr
             onClick={() => {setCurrentFileID(file.session_id)}}
           >
             {file.session_id != fileBeingRenamed && file.session_name}
-            <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} token={token}/>
+            <div className="inline-flex">
+              <RenameFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} token={token}/>
+              <DeleteFileButton className="hidden group-hover:flex" fileID={file.session_id} setTriggerAfterUpdate={setTriggerAfterUpdate} setFileBeingRenamed={setFileBeingRenamed} token={token}/>
+            </div>
           </li>
         ))}
       </ul>

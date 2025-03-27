@@ -45,7 +45,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
     async function intializeSess() {
       // check if a session already exists, making it unnecessary to create a new one
       const existingSessions = await fetchSessions(token);
-      
+
       if (existingSessions && existingSessions.length === 0) {
       const session = await createSession({
         session_name: "New file",
@@ -81,9 +81,15 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   useEffect(() => {
     async function fetchSpecificSession(session_id) {
       const fetched_session = await fetchSession(session_id, token);
+
+      if (!fetched_session.context) {
+        contentRef.current.value = "";
+        return;
+      }
+
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
-      contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
+      contentRef.current.value = fetched_session.context.message || ""; // if still undefined then it'll just be an empty string
     }
 
     if (currentFileID != null && currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
