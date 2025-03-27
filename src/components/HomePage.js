@@ -145,7 +145,7 @@ export default function HomePage() {
                     type="email"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-4 p-2 border rounded dark:text-black"
                     required
                   />
                   <label htmlFor="loginPassword" className="mb-2">
@@ -156,7 +156,7 @@ export default function HomePage() {
                     type="password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-4 p-2 border rounded dark:text-black"
                     required
                   />
                   {loginError && <p className="text-red-500 mb-2">{loginError}</p>}
@@ -191,7 +191,7 @@ export default function HomePage() {
                     type="text"
                     value={signupUsername}
                     onChange={(e) => setSignupUsername(e.target.value)}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-4 p-2 border rounded dark:text-black"
                     required
                   />
                   <label htmlFor="signupEmail" className="mb-2">
@@ -202,7 +202,7 @@ export default function HomePage() {
                     type="email"
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-4 p-2 border rounded dark:text-black"
                     required
                   />
                   <label htmlFor="signupPassword" className="mb-2">
@@ -213,7 +213,7 @@ export default function HomePage() {
                     type="password"
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    className="mb-4 p-2 border rounded"
+                    className="mb-4 p-2 border rounded dark:text-black"
                     required
                   />
                   {signupError && <p className="text-red-500 mb-2">{signupError}</p>}
