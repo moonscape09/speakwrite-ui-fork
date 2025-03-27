@@ -88,7 +88,7 @@ export default function HomePage() {
   return (
     <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center p-8">
       {/* Top Right Authentication Buttons */}
-      <div className="fixed top-4 right-4 flex space-x-2 z-50">
+      <div className="fixed top-2 right-2 flex space-x-2 z-50">
         {isLoggedIn ? (
           <button
             onClick={handleLogout}
