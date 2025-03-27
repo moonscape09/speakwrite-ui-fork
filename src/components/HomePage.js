@@ -88,37 +88,46 @@ export default function HomePage() {
   return (
     <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center p-8">
       {/* Top Right Authentication Buttons */}
-      <div className="fixed top-2 right-2 flex space-x-2 z-50">
-        {isLoggedIn ? (
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-500 text-white rounded"
-          >
-            Log Out
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={() => {
-                setAuthMode("login");
-                setAuthModalOpen(true);
-              }}
-              className="px-4 py-2 bg-green-500 text-white rounded"
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => {
-                setAuthMode("signup");
-                setAuthModalOpen(true);
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Sign Up
-            </button>
-          </>
-        )}
+<div className="z-50">
+  {isLoggedIn ? (
+    <button
+      onClick={handleLogout}
+      className="fixed top-0 right-0 px-4 py-2 bg-red-500 text-white rounded"
+    >
+      Log Out
+    </button>
+  ) : (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <img
+        src="logo.png"
+        alt="Logo"
+        width="250"
+        height="250"
+        className="mb-4"
+      />
+      <div className="flex space-x-2">
+        <button
+          onClick={() => {
+            setAuthMode("login");
+            setAuthModalOpen(true);
+          }}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Log In
+        </button>
+        <button
+          onClick={() => {
+            setAuthMode("signup");
+            setAuthModalOpen(true);
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Sign Up
+        </button>
       </div>
+    </div>
+  )}
+</div>
 
       {/* Auth Modal Pop-up */}
       {authModalOpen && (
