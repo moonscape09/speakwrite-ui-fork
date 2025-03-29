@@ -78,10 +78,10 @@ export default function FilePanel({
               className={`
                 group flex items-center justify-between rounded-md px-3 py-2 text-md
                 cursor-pointer text-gray-700 dark:text-gray-200
-                hover:bg-gray-200 dark:hover:bg-gray-800
+                hover:bg-gray-200 dark:hover:bg-gray-700
                 ${
                   file.session_id === currentFileID
-                    ? "bg-gray-200 dark:bg-gray-800"
+                    ? "bg-gray-300 dark:bg-gray-600"
                     : ""
                 }
               `}

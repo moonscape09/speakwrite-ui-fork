@@ -189,7 +189,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
   return (
     <div className="relative w-full bg-white dark:bg-gray-900 text-black dark:text-white py-[6vh] px-[6vw] shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
       <div className="absolute top-4 left-4 z-50">
-        <button className="p-1 rounded-lg hover:bg-gray-300 transition-colors duration-200 ease-in-out" onClick={onClose}>
+        <button className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out" onClick={onClose}>
           <PanelLeft />
         </button>
       </div>
