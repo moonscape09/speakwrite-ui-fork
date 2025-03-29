@@ -213,7 +213,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
           }
         }}
         placeholder="Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
+        className="w-full text-xl py-2 px-5 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
         rows={5}
       />
 
