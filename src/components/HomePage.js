@@ -44,6 +44,7 @@ export default function HomePage() {
       const data = await loginUser(loginEmail, loginPassword);
       // On successful login, store the token and update state
       localStorage.setItem("token", data.access_token);
+      localStorage.setItem("email", loginEmail); // Store email in local storage
       setIsLoggedIn(true);
       setAuthModalOpen(false);
       // Clear form state
@@ -63,6 +64,7 @@ export default function HomePage() {
       const data = await signupUser(signupUsername, signupEmail, signupPassword);
       // Optionally, log the user in immediately after sign-up
       localStorage.setItem("token", data.access_token);
+      localStorage.setItem("email", signupEmail); // Store email in local storage
       setIsLoggedIn(true);
       setAuthModalOpen(false);
       // Clear signup form state
@@ -79,6 +81,7 @@ export default function HomePage() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("email"); // Remove email from local storage
     setIsLoggedIn(false);
     setCurrentFileID(null);
     setTriggerAfterUpdate(false);
@@ -247,6 +250,7 @@ export default function HomePage() {
           token={token} // Pass the user ID to the FilePanel
           handleLogout={handleLogout}
           isLoggedIn={isLoggedIn}
+          email={localStorage.getItem("email")}
         />
       )}
       <TextBlock

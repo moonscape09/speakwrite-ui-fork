@@ -15,7 +15,8 @@ export default function FilePanel({
   setTriggerAfterUpdate,
   token,
   handleLogout,
-  isLoggedIn
+  isLoggedIn,
+  email
 }) {
   const [files, setFiles] = useState([]);
   const [fileBeingRenamed, setFileBeingRenamed] = useState(null);
@@ -44,6 +45,13 @@ export default function FilePanel({
     };
     if (token) fetchSessionNames();
   }, [triggerAfterUpdate, token]);
+
+  const truncateEmail = (email, maxLength) => {
+    if (!email || email.length <= maxLength) return email;
+    return email.slice(0, maxLength) + "...";
+  };
+
+  email = truncateEmail(email, 15);
 
   return (
     <div
@@ -110,6 +118,8 @@ export default function FilePanel({
         </ul>
       </nav>
       <div className="border-t flex justify-between border-gray-300 dark:border-gray-400 px-4 py-3">
+        <p>{email}</p>
+
         <DarkModeToggle />
         {isLoggedIn && (<LogOutButton handleLogout={handleLogout}/>)}
       </div>
