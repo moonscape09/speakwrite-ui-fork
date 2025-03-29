@@ -4,6 +4,7 @@ import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
 import { useState } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
+import { LogOut } from "lucide-react"
 
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
@@ -86,15 +87,15 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center p-8">
+    <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center">
       {/* Top Right Authentication Buttons */}
 <div className="z-50">
   {isLoggedIn ? (
     <button
       onClick={handleLogout}
-      className="fixed top-0 right-0 px-4 py-2 bg-red-500 text-white rounded"
+      className="fixed top-0 right-0 hover:bg-gray-200 mb-1 text-black dark:text-white font-bold py-1 px-2 rounded-lg dark:hover:bg-gray-400 transition-colors duration-200 ease-in-out"
     >
-      Log Out
+      <LogOut />
     </button>
   ) : (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -244,24 +245,9 @@ export default function HomePage() {
       {/* Left Panel Toggle Button */}
       {isLoggedIn && (
       <>
-      {!isOpen && (
-        <button
-          onClick={togglePanel}
-          className="flex bg-gray-200 dark:bg-gray-800 p-5 border-r mr-2 rounded-lg border-gray-300 dark:border-gray-600 shadow-md font-sw"
-        >
-          <img
-            src="open_close.png"
-            alt="Open"
-            width="20"
-            height="20"
-            className="transform scale-x-[-1] object-contain"
-          />
-        </button>
-      )}
       {isOpen && (
         <FilePanel
           fileTitle={fileTitle}
-          onClose={togglePanel}
           setCurrentFileID={setCurrentFileID}
           currentFileID={currentFileID}
           triggerAfterUpdate={triggerAfterUpdate}
@@ -270,6 +256,7 @@ export default function HomePage() {
         />
       )}
       <TextBlock
+        onClose={togglePanel}
         setFileTitle={setFileTitle}
         currentFileID={currentFileID}
         triggerAfterUpdate={triggerAfterUpdate}
