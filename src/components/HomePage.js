@@ -4,7 +4,7 @@ import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
 import { useState } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
-
+import Image from "next/image";
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
@@ -86,25 +86,18 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center p-8">
+    <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center">
       {/* Top Right Authentication Buttons */}
 <div className="z-50">
-  {isLoggedIn ? (
-    <button
-      onClick={handleLogout}
-      className="fixed top-0 right-0 px-4 py-2 bg-red-500 text-white rounded"
-    >
-      Log Out
-    </button>
-  ) : (
+  {!isLoggedIn && (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <img
-        src="logo.png"
-        alt="Logo"
-        width="250"
-        height="250"
+      <Image
+        src="/logo.png"
+        width={250}
+        height={250}
         className="mb-4"
-      />
+        alt="SpeakWrite"
+        />
       <div className="flex space-x-2">
         <button
           onClick={() => {
@@ -244,32 +237,20 @@ export default function HomePage() {
       {/* Left Panel Toggle Button */}
       {isLoggedIn && (
       <>
-      {!isOpen && (
-        <button
-          onClick={togglePanel}
-          className="flex bg-gray-200 dark:bg-gray-800 p-5 border-r mr-2 rounded-lg border-gray-300 dark:border-gray-600 shadow-md font-sw"
-        >
-          <img
-            src="open_close.png"
-            alt="Open"
-            width="20"
-            height="20"
-            className="transform scale-x-[-1] object-contain"
-          />
-        </button>
-      )}
       {isOpen && (
         <FilePanel
           fileTitle={fileTitle}
-          onClose={togglePanel}
           setCurrentFileID={setCurrentFileID}
           currentFileID={currentFileID}
           triggerAfterUpdate={triggerAfterUpdate}
           setTriggerAfterUpdate={setTriggerAfterUpdate}
           token={token} // Pass the user ID to the FilePanel
+          handleLogout={handleLogout}
+          isLoggedIn={isLoggedIn}
         />
       )}
       <TextBlock
+        onClose={togglePanel}
         setFileTitle={setFileTitle}
         currentFileID={currentFileID}
         triggerAfterUpdate={triggerAfterUpdate}

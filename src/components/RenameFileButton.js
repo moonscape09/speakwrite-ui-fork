@@ -28,7 +28,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterUp
             {!renaming &&
             <div className={className}>
                 <button
-                    className="dark:text-white cursor-pointer cursor-pointer hover:bg-gray-300 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
+                    className="dark:text-white cursor-pointer cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
                     onClick={() => {
                             setRenaming(true);
                             setFileBeingRenamed(fileID)}

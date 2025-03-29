@@ -11,7 +11,9 @@ export default {
     extend: {
       colors: {
         text: "#171717",
-        background: "#F1F1EF"
+        background: "#F1F1EF",
+        swdark: "#28234F",
+        swlight: "#FBF5E7"
       },
       fontFamily: {
         sw: ['Inter', 'Arial', 'Helvetica', 'sans-serif']

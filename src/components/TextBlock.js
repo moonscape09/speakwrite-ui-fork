@@ -10,9 +10,10 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 import TranslateButton from "./TranslateButton"; // ✅ Import TranslateButton
+import { PanelLeft } from "lucide-react"
 
 
-export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
+export default function TextBlock({ onClose, setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -213,7 +214,12 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   };
 
   return (
-    <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+    <div className="relative w-full bg-white dark:bg-gray-900 text-black dark:text-white py-[6vh] px-[6vw] shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+      <div className="absolute top-4 left-4 z-50">
+        <button className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out" onClick={onClose}>
+          <PanelLeft />
+        </button>
+      </div>
       <Form onSubmit={(e) => titleSubmit(e)}>
         <input
           type="text"
@@ -236,7 +242,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
           }
         }}
         placeholder="Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
+        className="w-full text-xl py-2 px-5 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
         rows={5}
       />
 
@@ -247,22 +253,13 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         />
       </div>
 
-      <div className="absolute bottom-0 right-0">
+      <div className="absolute flex items-center top-0 right-0 m-4 space-x-3">
+        <TranslateButton content={content} setContent={setContent} />
+        <DownloadPdf handle={handleDownloadPdf}/>
         <MediaParser
           transcriptionRef={transcriptionRef}
           pdfContentRef={pdfContentRef}
         />
-      </div>
-
-      <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
-        <DownloadPdf
-          handle={handleDownloadPdf}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
-        />
-        <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
-      </div>
-      <div className="absolute top-0 right-0 m-4">
-      <TranslateButton content={content} setContent={setContent} />
       </div>
     </div>
   );
