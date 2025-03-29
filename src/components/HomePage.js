@@ -4,7 +4,7 @@ import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
 import { useState } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
-
+import Image from "next/image";
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
@@ -91,13 +91,13 @@ export default function HomePage() {
 <div className="z-50">
   {!isLoggedIn && (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <img
-        src="logo.png"
-        alt="Logo"
-        width="250"
-        height="250"
+      <Image
+        src="/logo.png"
+        width={250}
+        height={250}
         className="mb-4"
-      />
+        alt="SpeakWrite"
+        />
       <div className="flex space-x-2">
         <button
           onClick={() => {
