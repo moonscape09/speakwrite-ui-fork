@@ -25,8 +25,10 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
           model: "openai/whisper-tiny",
           provider: "hf-inference",
         });
+        if (transcriptionRef.current == "") {
+          setMediaCounter((prev) => prev + 1); // Increment media counter
+        }
         transcriptionRef.current = response.text;
-        setMediaCounter((prev) => prev + 1); // Increment media counter
       } else if (file.type === "application/pdf") {
         // Extract PDF text using pdf.js
         const reader = new FileReader();
@@ -41,8 +43,10 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
             const textItems = textContent.items.map((item) => item.str);
             combinedText += textItems.join(" ");
           }
+          if (pdfContentRef.current == "") {
+            setMediaCounter((prev) => prev + 1); // Increment media counter
+          }
           pdfContentRef.current = combinedText;
-          setMediaCounter((prev) => prev + 1); // Increment media counter
         };
         reader.readAsArrayBuffer(file);
       } else {
