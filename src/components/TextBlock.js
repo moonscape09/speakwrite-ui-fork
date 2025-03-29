@@ -231,14 +231,18 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
         />
       </div>
 
-      <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
+      {/* <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
         <DownloadPdf
           handle={handleDownloadPdf}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
         />
-      </div>
+      </div> */}
       <div className="absolute top-0 right-0 m-4">
       <TranslateButton content={content} setContent={setContent} />
+      <DownloadPdf
+          handle={handleDownloadPdf}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
+        />
       </div>
     </div>
   );

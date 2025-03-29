@@ -38,15 +38,15 @@ export default function StartButton({ clickHandler, isConnected }) {
   return (
     <div className="flex flex-col items-center space-y-4">
       {/* Active tone indicator */}
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 dark:text-gray-200">
         Selected Tone: <strong>{tone}</strong>
       </p>
 
       {/* Central Mic Button */}
       <button
         onClick={handleClick}
-        className={`p-5 rounded-full shadow-lg text-white transition-colors duration-200 ${
-          isConnected ? "bg-gray-400 hover:bg-gray-500" : "bg-black hover:bg-gray-600"
+        className={`p-5 rounded-full shadow-lg text-white dark:text-black transition-colors duration-200 ${
+          isConnected ? "bg-gray-400 hover:bg-gray-500" : "bg-black dark:bg-white hover:bg-gray-600"
         }`}
       >
         <Mic size={36} />
