@@ -15,7 +15,7 @@ export default function TranslateButton({ content, setContent }) {
     German: "de",
   };
 
-  const maxRetries = 3;
+  const maxRetries = 10;
 
   const handleTranslate = async () => {
     if (!content) return;
