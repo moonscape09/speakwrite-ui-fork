@@ -4,7 +4,6 @@ import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
 import { useState } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
-import { LogOut } from "lucide-react"
 
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
@@ -90,14 +89,7 @@ export default function HomePage() {
     <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center">
       {/* Top Right Authentication Buttons */}
 <div className="z-50">
-  {isLoggedIn ? (
-    <button
-      onClick={handleLogout}
-      className="fixed top-0 right-0 hover:bg-gray-200 mb-1 text-black dark:text-white font-bold py-1 px-2 rounded-lg dark:hover:bg-gray-400 transition-colors duration-200 ease-in-out"
-    >
-      <LogOut />
-    </button>
-  ) : (
+  {!isLoggedIn && (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <img
         src="logo.png"
@@ -253,6 +245,8 @@ export default function HomePage() {
           triggerAfterUpdate={triggerAfterUpdate}
           setTriggerAfterUpdate={setTriggerAfterUpdate}
           token={token} // Pass the user ID to the FilePanel
+          handleLogout={handleLogout}
+          isLoggedIn={isLoggedIn}
         />
       )}
       <TextBlock

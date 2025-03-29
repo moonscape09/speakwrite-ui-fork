@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import AddFileButton from "@/components/AddFileButton";
 import DeleteFileButton from "@/components/DeleteFileButton";
 import RenameFileButton from "@/components/RenameFileButton";
+import LogOutButton from "@/components/LogOutButton";
 import { fetchSessions } from "@/lib/api";
 import Image from 'next/image'
 import DarkModeToggle from "@/components/DarkModeToggle"
@@ -13,6 +14,8 @@ export default function FilePanel({
   triggerAfterUpdate,
   setTriggerAfterUpdate,
   token,
+  handleLogout,
+  isLoggedIn
 }) {
   const [files, setFiles] = useState([]);
   const [fileBeingRenamed, setFileBeingRenamed] = useState(null);
@@ -106,9 +109,9 @@ export default function FilePanel({
           ))}
         </ul>
       </nav>
-      <div className="border-t border-gray-300 dark:border-gray-400 px-4 py-3">
-        <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
-        {/* TODO ADD ACCOUNT BUTTON HERE MAYBE? OR LOGOUT?*/}
+      <div className="border-t flex justify-between border-gray-300 dark:border-gray-400 px-4 py-3">
+        <DarkModeToggle />
+        {isLoggedIn && (<LogOutButton handleLogout={handleLogout}/>)}
       </div>
     </div>
   );
