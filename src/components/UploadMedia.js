@@ -6,7 +6,7 @@ import { Upload } from "lucide-react"; // or "FilePlus", whichever you prefer
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
-export default function MediaParser({ transcriptionRef, pdfContentRef }) {
+export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaCounter }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +26,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
           provider: "hf-inference",
         });
         transcriptionRef.current = response.text;
+        setMediaCounter((prev) => prev + 1); // Increment media counter
       } else if (file.type === "application/pdf") {
         // Extract PDF text using pdf.js
         const reader = new FileReader();
@@ -41,6 +42,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
             combinedText += textItems.join(" ");
           }
           pdfContentRef.current = combinedText;
+          setMediaCounter((prev) => prev + 1); // Increment media counter
         };
         reader.readAsArrayBuffer(file);
       } else {

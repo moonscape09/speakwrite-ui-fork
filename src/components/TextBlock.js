@@ -1,6 +1,6 @@
 "use client";
 import Form from "next/form";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import StartButton from "./StartButton";
 import { createChat, update_chat_history, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
@@ -21,6 +21,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
   const [c_sid, setCsid] = useState(-1);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [MediaCounter, setMediaCounter] = useState(0);
   // const [transcription, setTranscription] = useState("");
   // const [pdfContent, setPdfContent] = useState("");
 
@@ -142,6 +143,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
               createChat(c_sid, "speakwrite", message.data, token);
               pdfContentRef.current = "";
               transcriptionRef.current = "";
+              setMediaCounter(0);
               console.log(
                 pdfContentRef.current +
                   " inside onmessage " +
@@ -259,7 +261,9 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
         <MediaParser
           transcriptionRef={transcriptionRef}
           pdfContentRef={pdfContentRef}
+          setMediaCounter={setMediaCounter}
         />
+        <p>{MediaCounter}</p>
       </div>
     </div>
   );
