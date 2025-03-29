@@ -41,12 +41,13 @@ export default function TranslateButton({ content, setContent }) {
 
         if (data.translation) {
           setContent(data.translation);
+          setSourceLanguage(targetLanguage);
           success = true;
-        } else if (data.error) {
-          setError(data.error);
+        } else {
+          console.error("Translation failed: ", data.error);
         }
       } catch (error) {
-        setError("Translation failed. Please try again.");
+        console.error("Error during translate:", error);
       }
       retries++;
     }
