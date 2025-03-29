@@ -2,7 +2,7 @@
 import Form from "next/form";
 import { useState, useRef, useEffect } from "react";
 import StartButton from "./StartButton";
-import { createChat, createUser, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
+import { createChat, update_chat_history, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -203,6 +203,8 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
+            console.log(e.target.value);
+            update_chat_history(e.target.value);
             createChat(c_sid, "speakwrite", e.target.value, token);
           }
         }}
