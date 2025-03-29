@@ -68,7 +68,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
       {/* Minimal Upload Icon Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="py-1 px-2 rounded-lg mb-1 text-black hover:bg-gray-200 dark:hover:bg-gray-300
+        className="py-1 px-2 rounded-lg mb-1 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700
                    focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200 ease-in-out"
         title="Upload"
       >
@@ -111,7 +111,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-3 py-2 text-sm rounded bg-gray-200 hover:bg-gray-300
+                className="px-3 py-2 text-sm rounded bg-gray-800 hover:bg-gray-700 text-white
                            focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 Close

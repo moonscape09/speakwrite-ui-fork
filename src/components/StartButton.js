@@ -45,8 +45,8 @@ export default function StartButton({ clickHandler, isConnected }) {
       {/* Central Mic Button */}
       <button
         onClick={handleClick}
-        className={`p-5 rounded-full shadow-lg text-white dark:text-black transition-colors duration-200 ${
-          isConnected ? "bg-gray-400 hover:bg-gray-500" : "bg-black dark:bg-white hover:bg-gray-600"
+        className={`p-5 rounded-full shadow-lg text-white transition-colors duration-200 ease-in-out ${
+          isConnected ? "bg-gray-400 hover:bg-gray-500" : "bg-black hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
         }`}
       >
         <Mic size={36} />
@@ -62,8 +62,8 @@ export default function StartButton({ clickHandler, isConnected }) {
             className={`flex items-center px-3 py-2 text-sm font-medium rounded-full shadow transition-all 
               ${
                 tone === name
-                  ? `${color} text-black ring-2 ring-offset-2 ring-blue-500`
-                  : "bg-gray-100 text-black hover:bg-gray-200"
+                  ? `${color} text-black ring-2 ring-offset-2 ring-swdark`
+                  : "bg-gray-100 text-black dark:text-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
               }`}
           >
             <Icon className="w-4 h-4 mr-2" />

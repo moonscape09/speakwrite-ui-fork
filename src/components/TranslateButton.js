@@ -59,7 +59,7 @@ export default function TranslateButton({ content, setContent }) {
       {/* Icon Button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200 ease-in-out"
+        className="px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200 ease-in-out"
         aria-label="Toggle translation panel"
       >
         <Languages />
@@ -77,7 +77,7 @@ export default function TranslateButton({ content, setContent }) {
               id="sourceLanguage"
               value={sourceLanguage}
               onChange={(e) => setSourceLanguage(e.target.value)}
-              className="w-full mt-1 border border-gray-300 rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400"
+              className="w-full mt-1 border border-gray-300 text-black rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               {Object.keys(languages).map((lang) => (
                 <option key={lang} value={lang}>
@@ -96,7 +96,7 @@ export default function TranslateButton({ content, setContent }) {
               id="targetLanguage"
               value={targetLanguage}
               onChange={(e) => setTargetLanguage(e.target.value)}
-              className="w-full mt-1 border border-gray-300 rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400"
+              className="w-full mt-1 border border-gray-300 text-black rounded p-1 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               {Object.keys(languages).map((lang) => (
                 <option key={lang} value={lang}>
