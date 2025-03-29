@@ -173,8 +173,35 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   const handleDownloadPdf = () => {
     // Download the content as a PDF file
     const pdf = new jsPDF();
-    pdf.text(title, 20, 20);
-    pdf.text(content, 20, 30);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxLineWidth = pageWidth - 2 * margin; // Width available for text
+  
+    // Set font size (optional)
+    pdf.setFontSize(12);
+  
+    // Add the title
+    pdf.text(title, margin, margin); // Title at top-left with margin
+  
+    // Split and wrap the content text
+    const contentLines = pdf.splitTextToSize(content, maxLineWidth);
+    let yPosition = margin + 10; // Start below the title
+  
+    // Loop through lines and add them to the PDF
+    contentLines.forEach((line) => {
+      if (yPosition + 10 > pageHeight - margin) {
+        // Add a new page if the current line would exceed the page height
+        pdf.addPage();
+        yPosition = margin; // Reset y-position to top of new page
+      }
+      pdf.text(line, margin, yPosition);
+      yPosition += 10; // Move down for the next line (adjust line spacing as needed)
+    });
+      // pdf.text(title, 20, 20);
+      // pdf.text(content, 20, 30);
+      console.log(pdf);
+      pdf.save("notes.pdf");
     console.log(pdf);
     pdf.save("notes.pdf");
   };
