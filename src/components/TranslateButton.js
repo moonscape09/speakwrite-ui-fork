@@ -47,7 +47,7 @@ export default function TranslateButton({ content, setContent }) {
           console.error("Translation failed: ", data.error);
         }
       } catch (error) {
-        console.error("Error during translate:", error);
+        console.error("Error during translation:", error);
       }
       retries++;
     }
