@@ -59,7 +59,7 @@ export default function TranslateButton({ content, setContent }) {
       {/* Icon Button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400"
+        className="px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200 ease-in-out"
         aria-label="Toggle translation panel"
       >
         <Languages />
