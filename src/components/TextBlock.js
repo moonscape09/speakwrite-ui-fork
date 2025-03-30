@@ -1,8 +1,8 @@
 "use client";
 import Form from "next/form";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import StartButton from "./StartButton";
-import { createChat, createUser, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
+import { createChat, update_chat_history, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -21,6 +21,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
   const [c_sid, setCsid] = useState(-1);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [MediaCounter, setMediaCounter] = useState(0);
   // const [transcription, setTranscription] = useState("");
   // const [pdfContent, setPdfContent] = useState("");
 
@@ -142,6 +143,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
               createChat(c_sid, "speakwrite", message.data, token);
               pdfContentRef.current = "";
               transcriptionRef.current = "";
+              setMediaCounter(0);
               console.log(
                 pdfContentRef.current +
                   " inside onmessage " +
@@ -174,8 +176,35 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
   const handleDownloadPdf = () => {
     // Download the content as a PDF file
     const pdf = new jsPDF();
-    pdf.text(title, 20, 20);
-    pdf.text(content, 20, 30);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxLineWidth = pageWidth - 2 * margin; // Width available for text
+  
+    // Set font size (optional)
+    pdf.setFontSize(12);
+  
+    // Add the title
+    pdf.text(title, margin, margin); // Title at top-left with margin
+  
+    // Split and wrap the content text
+    const contentLines = pdf.splitTextToSize(content, maxLineWidth);
+    let yPosition = margin + 10; // Start below the title
+  
+    // Loop through lines and add them to the PDF
+    contentLines.forEach((line) => {
+      if (yPosition + 10 > pageHeight - margin) {
+        // Add a new page if the current line would exceed the page height
+        pdf.addPage();
+        yPosition = margin; // Reset y-position to top of new page
+      }
+      pdf.text(line, margin, yPosition);
+      yPosition += 10; // Move down for the next line (adjust line spacing as needed)
+    });
+      // pdf.text(title, 20, 20);
+      // pdf.text(content, 20, 30);
+      console.log(pdf);
+      pdf.save("notes.pdf");
     console.log(pdf);
     pdf.save("notes.pdf");
   };
@@ -209,6 +238,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
+            update_chat_history(e.target.value);
             createChat(c_sid, "speakwrite", e.target.value, token);
           }
         }}
@@ -230,7 +260,9 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
         <MediaParser
           transcriptionRef={transcriptionRef}
           pdfContentRef={pdfContentRef}
+          setMediaCounter={setMediaCounter}
         />
+        <p>{MediaCounter}</p>
       </div>
     </div>
   );

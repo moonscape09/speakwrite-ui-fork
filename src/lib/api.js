@@ -97,3 +97,13 @@ export const signupUser = async ( username, email, password) => {
       throw new Error("Signup failed. Please try again.");
     }
 }
+
+export const update_chat_history = async (history) => {
+    try {
+        const response = await axios.post(`http://localhost:8000/chat_history`, { history });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating chat history:", error);
+        throw new Error("Failed to update chat history: " + error.message);    
+    }
+}

@@ -6,7 +6,7 @@ import { Upload } from "lucide-react"; // or "FilePlus", whichever you prefer
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
-export default function MediaParser({ transcriptionRef, pdfContentRef }) {
+export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaCounter }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +25,9 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
           model: "openai/whisper-tiny",
           provider: "hf-inference",
         });
+        if (transcriptionRef.current == "") {
+          setMediaCounter((prev) => prev + 1); // Increment media counter
+        }
         transcriptionRef.current = response.text;
       } else if (file.type === "application/pdf") {
         // Extract PDF text using pdf.js
@@ -39,6 +42,9 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
             const textContent = await page.getTextContent();
             const textItems = textContent.items.map((item) => item.str);
             combinedText += textItems.join(" ");
+          }
+          if (pdfContentRef.current == "") {
+            setMediaCounter((prev) => prev + 1); // Increment media counter
           }
           pdfContentRef.current = combinedText;
         };
