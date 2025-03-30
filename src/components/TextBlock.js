@@ -238,7 +238,6 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            console.log(e.target.value);
             update_chat_history(e.target.value);
             createChat(c_sid, "speakwrite", e.target.value, token);
           }

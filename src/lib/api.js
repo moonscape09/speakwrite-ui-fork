@@ -100,7 +100,6 @@ export const signupUser = async ( username, email, password) => {
 
 export const update_chat_history = async (history) => {
     try {
-        console.log(history)
         const response = await axios.post(`http://localhost:8000/chat_history`, { history });
         return response.data;
     } catch (error) {
