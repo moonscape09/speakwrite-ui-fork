@@ -110,7 +110,8 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
       pdfContentRef,
       setIsConnected,
       transcriptionRef,
-      token
+      token,
+      tone
     );
     if (isConnected) {
       // Close WebSocket connection
