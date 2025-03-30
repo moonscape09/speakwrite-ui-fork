@@ -1,8 +1,12 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Moon, Sun } from "lucide-react";
 
 export default function DarkModeToggle() {
+  const [dark, setDark] = useState(false)
+  
   function toggleDarkMode() {
     const htmlEl = document.documentElement;
+    setDark((dark) => !dark);
     // Toggle the "dark" class
     if (htmlEl.classList.contains("dark")) {
       htmlEl.classList.remove("dark");
@@ -25,9 +29,14 @@ export default function DarkModeToggle() {
   return (
     <button
       onClick={toggleDarkMode}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 text-black dark:text-white"
+      className="hover:bg-gray-300 text-black dark:text-white font-bold py-1 px-2 rounded-lg dark:hover:bg-gray-600 transition-colors duration-200 ease-in-out"
     >
-      Toggle Dark Mode
+      {!dark && (
+        <Moon />
+      )}
+      {dark && (
+        <Sun />
+      )}
     </button>
   );
 }

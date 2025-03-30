@@ -1,8 +1,8 @@
 "use client";
 import Form from "next/form";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import StartButton from "./StartButton";
-import { createChat, createUser, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
+import { createChat, update_chat_history, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
@@ -10,9 +10,10 @@ import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
 import TranslateButton from "./TranslateButton"; // ✅ Import TranslateButton
+import { PanelLeft } from "lucide-react"
 
 
-export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
+export default function TextBlock({ onClose, setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
@@ -20,6 +21,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   const [c_sid, setCsid] = useState(-1);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [MediaCounter, setMediaCounter] = useState(0);
   // const [transcription, setTranscription] = useState("");
   // const [pdfContent, setPdfContent] = useState("");
 
@@ -141,6 +143,7 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
               createChat(c_sid, "speakwrite", message.data, token);
               pdfContentRef.current = "";
               transcriptionRef.current = "";
+              setMediaCounter(0);
               console.log(
                 pdfContentRef.current +
                   " inside onmessage " +
@@ -173,8 +176,35 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   const handleDownloadPdf = () => {
     // Download the content as a PDF file
     const pdf = new jsPDF();
-    pdf.text(title, 20, 20);
-    pdf.text(content, 20, 30);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxLineWidth = pageWidth - 2 * margin; // Width available for text
+  
+    // Set font size (optional)
+    pdf.setFontSize(12);
+  
+    // Add the title
+    pdf.text(title, margin, margin); // Title at top-left with margin
+  
+    // Split and wrap the content text
+    const contentLines = pdf.splitTextToSize(content, maxLineWidth);
+    let yPosition = margin + 10; // Start below the title
+  
+    // Loop through lines and add them to the PDF
+    contentLines.forEach((line) => {
+      if (yPosition + 10 > pageHeight - margin) {
+        // Add a new page if the current line would exceed the page height
+        pdf.addPage();
+        yPosition = margin; // Reset y-position to top of new page
+      }
+      pdf.text(line, margin, yPosition);
+      yPosition += 10; // Move down for the next line (adjust line spacing as needed)
+    });
+      // pdf.text(title, 20, 20);
+      // pdf.text(content, 20, 30);
+      console.log(pdf);
+      pdf.save("notes.pdf");
     console.log(pdf);
     pdf.save("notes.pdf");
   };
@@ -186,7 +216,12 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   };
 
   return (
-    <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+    <div className="relative w-full bg-white dark:bg-gray-900 text-black dark:text-white py-[6vh] px-[6vw] shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+      <div className="absolute top-4 left-4 z-50">
+        <button className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out" onClick={onClose}>
+          <PanelLeft />
+        </button>
+      </div>
       <Form onSubmit={(e) => titleSubmit(e)}>
         <input
           type="text"
@@ -203,11 +238,12 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
+            update_chat_history(e.target.value);
             createChat(c_sid, "speakwrite", e.target.value, token);
           }
         }}
         placeholder="Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
+        className="w-full text-xl py-2 px-5 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
         rows={5}
       />
 
@@ -218,22 +254,15 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         />
       </div>
 
-      <div className="absolute bottom-0 right-0">
+      <div className="absolute flex items-center top-0 right-0 m-4 space-x-3">
+        <TranslateButton content={content} setContent={setContent} />
+        <DownloadPdf handle={handleDownloadPdf}/>
         <MediaParser
           transcriptionRef={transcriptionRef}
           pdfContentRef={pdfContentRef}
+          setMediaCounter={setMediaCounter}
         />
-      </div>
-
-      <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
-        <DownloadPdf
-          handle={handleDownloadPdf}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
-        />
-        <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
-      </div>
-      <div className="absolute top-0 right-0 m-4">
-      <TranslateButton content={content} setContent={setContent} />
+        <p>{MediaCounter}</p>
       </div>
     </div>
   );
