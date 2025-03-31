@@ -43,6 +43,7 @@ export default function HomePage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoginError(""); // Clear previous error
       const data = await loginUser(loginEmail, loginPassword);
       // On successful login, store the token and update state
       localStorage.setItem("token", data.access_token);
@@ -63,6 +64,7 @@ export default function HomePage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
+      setSignupError(""); // Clear previous error
       const data = await signupUser(signupUsername, signupEmail, signupPassword);
       // Optionally, log the user in immediately after sign-up
       localStorage.setItem("token", data.access_token);
