@@ -93,6 +93,9 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
 
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
+      setMediaCounter(0);
+      pdfContentRef.current = "";
+      transcriptionRef.current = "";
       contentRef.current.value = fetched_session.context.message || ""; // if still undefined then it'll just be an empty string
     }
 
