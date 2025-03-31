@@ -2,9 +2,11 @@
 
 import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
 import Image from "next/image";
+import { setLogoutHandler } from "@/lib/api.js";
+
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
@@ -86,7 +88,13 @@ export default function HomePage() {
     setCurrentFileID(null);
     setTriggerAfterUpdate(false);
     setToken(null);
+    setIsLoggedIn(false);
   };
+
+
+  useEffect(() => {
+    setLogoutHandler(handleLogout);
+  }, []);
 
   return (
     <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center">
