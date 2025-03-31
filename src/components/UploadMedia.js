@@ -25,7 +25,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
           model: "openai/whisper-tiny",
           provider: "hf-inference",
         });
-        if (transcriptionRef.current == "") {
+        if (transcriptionRef.current === "") {
           setMediaCounter((prev) => prev + 1); // Increment media counter
         }
         transcriptionRef.current = response.text;
@@ -43,7 +43,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
             const textItems = textContent.items.map((item) => item.str);
             combinedText += textItems.join(" ");
           }
-          if (pdfContentRef.current == "") {
+          if (pdfContentRef.current === "") {
             setMediaCounter((prev) => prev + 1); // Increment media counter
           }
           pdfContentRef.current = combinedText;
