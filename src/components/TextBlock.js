@@ -93,6 +93,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
 
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
+      update_chat_history("");
       setMediaCounter(0);
       pdfContentRef.current = "";
       transcriptionRef.current = "";
