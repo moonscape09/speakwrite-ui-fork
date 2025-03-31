@@ -24,6 +24,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
   const [MediaCounter, setMediaCounter] = useState(0);
   // const [transcription, setTranscription] = useState("");
   // const [pdfContent, setPdfContent] = useState("");
+  let recognition = null; // Declare recognition outside of the component to avoid re-initialization
 
   const pdfContentRef = useRef("");
   const transcriptionRef = useRef("");
@@ -93,6 +94,18 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
 
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
+      update_chat_history("");
+      setMediaCounter(0);
+      setIsConnected(false);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (recognition) {
+        recognition.stop(); // Stop speech recognition when disconnecting
+      }
+      setIsConnected(false);
+      pdfContentRef.current = "";
+      transcriptionRef.current = "";
       contentRef.current.value = fetched_session.context.message || ""; // if still undefined then it'll just be an empty string
     }
 
@@ -104,7 +117,7 @@ export default function TextBlock({ onClose, setFileTitle, currentFileID, trigge
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(
+    recognition = setUpRecognition(
       wsRef,
       c_sid,
       pdfContentRef,

@@ -2,9 +2,11 @@
 
 import TextBlock from "@/components/TextBlock";
 import FilePanel from "@/components/FilePanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser, signupUser } from "@/lib/api.js";
 import Image from "next/image";
+import { setLogoutHandler } from "@/lib/api.js";
+
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [fileTitle, setFileTitle] = useState("Session 1");
@@ -41,6 +43,7 @@ export default function HomePage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoginError(""); // Clear previous error
       const data = await loginUser(loginEmail, loginPassword);
       // On successful login, store the token and update state
       localStorage.setItem("token", data.access_token);
@@ -61,6 +64,7 @@ export default function HomePage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
+      setSignupError(""); // Clear previous error
       const data = await signupUser(signupUsername, signupEmail, signupPassword);
       // Optionally, log the user in immediately after sign-up
       localStorage.setItem("token", data.access_token);
@@ -86,7 +90,13 @@ export default function HomePage() {
     setCurrentFileID(null);
     setTriggerAfterUpdate(false);
     setToken(null);
+    setIsLoggedIn(false);
   };
+
+
+  useEffect(() => {
+    setLogoutHandler(handleLogout);
+  }, []);
 
   return (
     <div className="relative w-full min-h-screen bg-background dark:bg-gray-900 text-black dark:text-white flex justify-center">

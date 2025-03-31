@@ -41,7 +41,7 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
         if (!success) {
           console.error("Failed to transcribe after multiple attempts");
         }
-        if (transcriptionRef.current && transcription === "") {
+        if (transcriptionRef.current === "") {
           setMediaCounter((prev) => prev + 1); // Increment media counter
         }
         transcriptionRef.current = transcription;
