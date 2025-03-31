@@ -15,17 +15,14 @@ export default function TranslateButton({ content, setContent }) {
     German: "de",
   };
 
-  const maxRetries = 10;
-
   const handleTranslate = async () => {
     if (!content) return;
     setIsTranslating(true);
     setError(null);
 
-    let retries = 0;
     let success = false;
 
-    while (retries < maxRetries && !success) {
+    while (!success) {
       try {
         const response = await fetch("/api/translate", {
           method: "POST",
@@ -49,7 +46,6 @@ export default function TranslateButton({ content, setContent }) {
       } catch (error) {
         console.error("Error during translation:", error);
       }
-      retries++;
     }
 
     setIsTranslating(false);

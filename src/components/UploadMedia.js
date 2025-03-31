@@ -20,15 +20,31 @@ export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaC
       if (file.type === "audio/mpeg") {
         // Transcribe MP3 using Hugging Face
         const hf = new HfInference(process.env.NEXT_PUBLIC_HF_TOKEN);
-        const response = await hf.automaticSpeechRecognition({
-          data: file,
-          model: "openai/whisper-tiny",
-          provider: "hf-inference",
-        });
-        if (transcriptionRef.current == "") {
+        let success = false;
+        let transcription = "";
+
+        while (!success) {
+          try {
+            const response = await hf.automaticSpeechRecognition({
+              data: file,
+              model: "openai/whisper-tiny",
+              provider: "hf-inference",
+            });
+            transcription = response.text;
+            success = true;
+          } catch (error) {
+            console.warn(`Retrying... (${retries + 1}/${MAX_RETRIES})`);
+            await new Promise((res) => setTimeout(res, 1000 * (2 ** retries))); // Exponential backoff
+          }
+        }
+
+        if (!success) {
+          console.error("Failed to transcribe after multiple attempts");
+        }
+        if (transcriptionRef.current === "") {
           setMediaCounter((prev) => prev + 1); // Increment media counter
         }
-        transcriptionRef.current = response.text;
+        transcriptionRef.current = transcription;
       } else if (file.type === "application/pdf") {
         // Extract PDF text using pdf.js
         const reader = new FileReader();
