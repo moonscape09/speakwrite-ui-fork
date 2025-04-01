@@ -1,25 +1,30 @@
 "use client";
 import Form from "next/form";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import StartButton from "./StartButton";
-import { createChat, createUser, createSession, fetchSession, renameSession } from "@/lib/api";
+import { createChat, update_chat_history, createSession, fetchSession, renameSession, fetchSessions } from "@/lib/api";
 import MediaParser from "./UploadMedia";
 import { setUpRecognition } from "@/lib/SpeechRecognition";
 import DownloadPdf from "./DownloadPdf";
 import { jsPDF } from "jspdf";
 import { flushSync } from "react-dom";
 import DarkModeToggle from "./DarkModeToggle";
+import TranslateButton from "./TranslateButton"; // ✅ Import TranslateButton
+import { PanelLeft } from "lucide-react"
 
-export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate }) {
+
+export default function TextBlock({ onClose, setFileTitle, currentFileID, triggerAfterUpdate, setTriggerAfterUpdate, token }) {
   const [title, setTitle] = useState(""); // State for the page title
   const [content, setContent] = useState(""); // State for the content
   const contentRef = useRef(null);
-  const [c_uid, setCuid] = useState(null);
-  const [c_sid, setCsid] = useState(null);
+  // const [c_uid, setCuid] = useState(null);
+  const [c_sid, setCsid] = useState(-1);
   const [isConnected, setIsConnected] = useState(false); // New state to track WebSocket connection status
   const wsRef = useRef(null);
+  const [MediaCounter, setMediaCounter] = useState(0);
   // const [transcription, setTranscription] = useState("");
   // const [pdfContent, setPdfContent] = useState("");
+  let recognition = null; // Declare recognition outside of the component to avoid re-initialization
 
   const pdfContentRef = useRef("");
   const transcriptionRef = useRef("");
@@ -27,28 +32,30 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
 
 
 
-  useEffect(() => {
-    async function intializeUser() {
-      if (c_uid === null) {
-        const user = await createUser("John Doe", "a@b.c", "12345678");
+  // useEffect(() => {
+  //   async function intializeUser() {
+  //     if (c_uid === null) {
+  //       const user = await createUser("John Doe", "a@b.c", "12345678");
 
-        if (user && user.id) {
-          setCuid(user.id);
-          console.log(user);
-        }
-      }
-    }
-    intializeUser();
-  }, [c_uid]);
+  //       if (user && user.id) {
+  //         setCuid(user.id);
+  //         console.log(user);
+  //       }
+  //     }
+  //   }
+  //   intializeUser();
+  // }, [c_uid]);
 
   useEffect(() => {
     async function intializeSess() {
       // check if a session already exists, making it unnecessary to create a new one
+      const existingSessions = await fetchSessions(token);
+
+      if (existingSessions && existingSessions.length === 0) {
       const session = await createSession({
         session_name: "New file",
-        user_id: c_uid,
-        context: {},
-      });
+        context: {}
+      }, token);
 
       if (session && session.session_id) {
         setCsid(session.session_id);
@@ -56,13 +63,17 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
       }
       setTriggerAfterUpdate((update) => (!update));
     }
+    else {
+      setCsid(existingSessions[0].session_id);
+    }
+  }
 
-    if  (currentFileID == -1 && c_uid != null) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
+    if  (currentFileID == -1 && token) { // currentFileID is assigned -1 (an invalid session ID) if there are no sessions being returned on the fetch
       intializeSess();
     } else {
       setCsid(currentFileID);
     }
-  }, [c_uid]);
+  }, [token]);
 
   // Auto-resize the textarea as you type
   useEffect(() => {
@@ -74,26 +85,46 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
 
   useEffect(() => {
     async function fetchSpecificSession(session_id) {
-      const fetched_session = await fetchSession(session_id);
+      const fetched_session = await fetchSession(session_id, token);
+
+      if (!fetched_session.context) {
+        contentRef.current.value = "";
+        return;
+      }
+
       setContent(fetched_session.context.message);
       setTitle(fetched_session.session_name);
-      contentRef.current.value = fetched_session.context.message || ""; // if undefined then it'll just be an empty string
+      update_chat_history("");
+      setMediaCounter(0);
+      setIsConnected(false);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (recognition) {
+        recognition.stop(); // Stop speech recognition when disconnecting
+      }
+      setIsConnected(false);
+      pdfContentRef.current = "";
+      transcriptionRef.current = "";
+      contentRef.current.value = fetched_session.context.message || ""; // if still undefined then it'll just be an empty string
     }
 
-    if (currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
+    if (currentFileID != null && currentFileID > -1) { // another way of saying currentFileID exists AND is not -1
       fetchSpecificSession(currentFileID);
       setCsid(currentFileID);
     }
-  }, [currentFileID, triggerAfterUpdate])
+  }, [currentFileID, triggerAfterUpdate, token]);
 
   // Handle WebSocket connection
   const handleStartButtonClick = (tone) => {
-    const recognition = setUpRecognition(
+    recognition = setUpRecognition(
       wsRef,
       c_sid,
       pdfContentRef,
       setIsConnected,
-      transcriptionRef
+      transcriptionRef,
+      token,
+      tone
     );
     if (isConnected) {
       // Close WebSocket connection
@@ -122,9 +153,11 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
             if (message.type === "content") {
               setContent(message.data);
               console.log(message.data, c_sid);
-              createChat(c_sid, "speakwrite", message.data);
+              console.log(token)
+              createChat(c_sid, "speakwrite", message.data, token);
               pdfContentRef.current = "";
               transcriptionRef.current = "";
+              setMediaCounter(0);
               console.log(
                 pdfContentRef.current +
                   " inside onmessage " +
@@ -157,20 +190,52 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
   const handleDownloadPdf = () => {
     // Download the content as a PDF file
     const pdf = new jsPDF();
-    pdf.text(title, 20, 20);
-    pdf.text(content, 20, 30);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxLineWidth = pageWidth - 2 * margin; // Width available for text
+  
+    // Set font size (optional)
+    pdf.setFontSize(12);
+  
+    // Add the title
+    pdf.text(title, margin, margin); // Title at top-left with margin
+  
+    // Split and wrap the content text
+    const contentLines = pdf.splitTextToSize(content, maxLineWidth);
+    let yPosition = margin + 10; // Start below the title
+  
+    // Loop through lines and add them to the PDF
+    contentLines.forEach((line) => {
+      if (yPosition + 10 > pageHeight - margin) {
+        // Add a new page if the current line would exceed the page height
+        pdf.addPage();
+        yPosition = margin; // Reset y-position to top of new page
+      }
+      pdf.text(line, margin, yPosition);
+      yPosition += 10; // Move down for the next line (adjust line spacing as needed)
+    });
+      // pdf.text(title, 20, 20);
+      // pdf.text(content, 20, 30);
+      console.log(pdf);
+      pdf.save("notes.pdf");
     console.log(pdf);
     pdf.save("notes.pdf");
   };
 
   const titleSubmit = async (e) => {
     e.preventDefault(); //prevent page reload
-    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title);
+    await renameSession(currentFileID, title.length == 0 ? "Unnamed file" : title, token);
     setTriggerAfterUpdate((update) => !update);
-  }
+  };
 
   return (
-    <div className="relative w-full bg-white dark:bg-gray-800 text-black dark:text-white p-10 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+    <div className="relative w-full bg-white dark:bg-gray-900 text-black dark:text-white py-[6vh] px-[6vw] shadow-md border border-gray-200 dark:border-gray-600 font-sw flex flex-col">
+      <div className="absolute top-4 left-4 z-50">
+        <button className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out" onClick={onClose}>
+          <PanelLeft />
+        </button>
+      </div>
       <Form onSubmit={(e) => titleSubmit(e)}>
         <input
           type="text"
@@ -187,11 +252,12 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            createChat(c_sid, "speakwrite", e.target.value);
+            update_chat_history(e.target.value);
+            createChat(c_sid, "speakwrite", e.target.value, token);
           }
         }}
         placeholder="Start writing your notes here..."
-        className="w-full text-xl p-2 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
+        className="w-full text-xl py-2 px-5 outline-none resize-none bg-transparent text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-300 leading-relaxed flex-grow basis-0"
         rows={5}
       />
 
@@ -202,19 +268,15 @@ export default function TextBlock({ setFileTitle, currentFileID, triggerAfterUpd
         />
       </div>
 
-      <div className="absolute bottom-0 right-0">
+      <div className="absolute flex items-center top-0 right-0 m-4 space-x-3">
+        <TranslateButton content={content} setContent={setContent} />
+        <DownloadPdf handle={handleDownloadPdf}/>
         <MediaParser
           transcriptionRef={transcriptionRef}
           pdfContentRef={pdfContentRef}
+          setMediaCounter={setMediaCounter}
         />
-      </div>
-
-      <div className="absolute bottom-0 left-0 p-2 flex space-x-2">
-        <DownloadPdf
-          handle={handleDownloadPdf}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800 dark:text-white"
-        />
-        <DarkModeToggle className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded-md" />
+        <p>{MediaCounter}</p>
       </div>
     </div>
   );

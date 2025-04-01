@@ -3,13 +3,13 @@ import { useState } from "react";
 import Form from 'next/form';
 import { renameSession } from "@/lib/api";
 
-export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed) => {
+export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed, token) => {
     e.preventDefault(); // prevents page reload
     setRenaming(false); // renaming state for current file is set to false
     setFileBeingRenamed(null); // no active file being renamed anymore
 
     try {
-        await renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename);
+        await renameSession(fileID, filename.length == 0 ? "Unnamed file" : filename, token);
         setTriggerAfterUpdate((update) => !update);
         setFilename("");
     } catch (error) {
@@ -18,7 +18,7 @@ export const handleRenameSubmit = async (e, fileID, filename, setFilename, setRe
 
 }
 
-export default function RenameFileButton( { className, fileID, setTriggerAfterUpdate, setFileBeingRenamed }) {
+export default function RenameFileButton( { className, fileID, setTriggerAfterUpdate, setFileBeingRenamed, token }) {
     const [renaming, setRenaming ] = useState(false);
     const [filename, setFilename] = useState("");
 
@@ -28,7 +28,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterUp
             {!renaming &&
             <div className={className}>
                 <button
-                    className="dark:text-white cursor-pointer cursor-pointer hover:bg-gray-300 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
+                    className="dark:text-white cursor-pointer cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500 text-black font-bold py-1 px-2 rounded-lg flex gap-2 hover:opacity-80 transition-colors duration-200 ease-in-out"
                     onClick={() => {
                             setRenaming(true);
                             setFileBeingRenamed(fileID)}
@@ -41,7 +41,7 @@ export default function RenameFileButton( { className, fileID, setTriggerAfterUp
             }
             {renaming &&
                     <Form
-                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed)}>
+                        onSubmit={(e) => handleRenameSubmit(e, fileID, filename, setFilename, setRenaming, setTriggerAfterUpdate, setFileBeingRenamed, token)}>
                         <input
                             type="text"
                             value={filename}

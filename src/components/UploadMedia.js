@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { HfInference } from "@huggingface/inference";
 import { useDropzone } from "react-dropzone";
+import { HfInference } from "@huggingface/inference";
 import * as pdfjs from "pdfjs-dist";
-import { flushSync } from "react-dom";
+import { Upload } from "lucide-react"; // or "FilePlus", whichever you prefer
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
-export default function MediaParser({ transcriptionRef, pdfContentRef }) {
-  //const [transcription, setTranscription] = useState("");
+export default function MediaParser({ transcriptionRef, pdfContentRef, setMediaCounter }) {
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onDrop = async (acceptedFiles) => {
@@ -15,62 +15,67 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
     if (!file) return;
 
     setLoading(true);
-    if (file.type === "audio/mpeg") {
-      try {
-        // const audioBlob = new Blob([file], { type: "audio/mpeg" });
-        // const formData = new FormData();
-        // formData.append("file", audioBlob, file.name);
+
+    try {
+      if (file.type === "audio/mpeg") {
+        // Transcribe MP3 using Hugging Face
         const hf = new HfInference(process.env.NEXT_PUBLIC_HF_TOKEN);
-        //const response = await hf.pipeline("automatic-speech-recognition", "openai/whisper-tiny")(formData);
-        const response = await hf.automaticSpeechRecognition({
-          data: file,
-          model: "openai/whisper-tiny",
-          provider: "hf-inference",
-        });
-        console.log(response);
-        transcriptionRef.current = response.text;
-      } catch (error) {
-        console.error("Error transcribing audio:", error);
-      } finally {
-        setLoading(false);
-      }
-    } else if (file.type === "application/pdf") {
-      try {
-        console.log("Selected PDF:", file);
+        let success = false;
+        let transcription = "";
+
+        while (!success) {
+          try {
+            const response = await hf.automaticSpeechRecognition({
+              data: file,
+              model: "openai/whisper-tiny",
+              provider: "hf-inference",
+            });
+            transcription = response.text;
+            success = true;
+          } catch (error) {
+            console.warn(`Retrying... (${retries + 1}/${MAX_RETRIES})`);
+            await new Promise((res) => setTimeout(res, 1000 * (2 ** retries))); // Exponential backoff
+          }
+        }
+
+        if (!success) {
+          console.error("Failed to transcribe after multiple attempts");
+        }
+        if (transcriptionRef.current === "") {
+          setMediaCounter((prev) => prev + 1); // Increment media counter
+        }
+        transcriptionRef.current = transcription;
+      } else if (file.type === "application/pdf") {
+        // Extract PDF text using pdf.js
         const reader = new FileReader();
         reader.onload = async (event) => {
-          try {
-            const typedarray = new Uint8Array(event.target.result);
+          const typedarray = new Uint8Array(event.target.result);
+          const pdfDoc = await pdfjs.getDocument(typedarray).promise;
 
-            const pdfDoc = await pdfjs.getDocument(typedarray).promise;
-
-            let combinedText = "";
-            for (let i = 1; i <= pdfDoc.numPages; i++) {
-              const page = await pdfDoc.getPage(i);
-              const textContent = await page.getTextContent();
-              const textItems = textContent.items.map((item) => item.str);
-              combinedText += textItems.join(" ");
-            }
-
-            pdfContentRef.current = combinedText;
-            console.log("PDF content: " + combinedText);
-          } finally {
-            setLoading(false);
+          let combinedText = "";
+          for (let i = 1; i <= pdfDoc.numPages; i++) {
+            const page = await pdfDoc.getPage(i);
+            const textContent = await page.getTextContent();
+            const textItems = textContent.items.map((item) => item.str);
+            combinedText += textItems.join(" ");
           }
+          if (pdfContentRef.current == "") {
+            setMediaCounter((prev) => prev + 1); // Increment media counter
+          }
+          pdfContentRef.current = combinedText;
         };
         reader.readAsArrayBuffer(file);
-      } catch (error) {
-        console.error("Error transcribing pdf:", error);
-        setLoading(false);
+      } else {
+        console.error("Invalid file type. Please upload an MP3 or PDF.");
       }
-    } else {
-      console.error("Invalid file type");
+    } catch (error) {
+      console.error("Error processing file:", error);
+    } finally {
       setLoading(false);
     }
-
-    console.log("Here " + file.type);
   };
 
+  // Configure react-dropzone
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -81,15 +86,62 @@ export default function MediaParser({ transcriptionRef, pdfContentRef }) {
   });
 
   return (
-    <div className="p-2 max-w-sm mx-auto text-center text-gray-600 dark:text-gray-300">
-      <div
-        {...getRootProps()}
-        className="border-2 border-dashed p-6 rounded-lg cursor-pointer border-gray-600 dark:border-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+    <div>
+      {/* Minimal Upload Icon Button */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="py-1 px-2 rounded-lg mb-1 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700
+                   focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200 ease-in-out"
+        title="Upload"
       >
-        <input {...getInputProps()} />
-        <p>Drag & drop an MP3 or PDF file here, or click to select one</p>
-      </div>
-      {loading && <p className="mt-4">Transcribing...</p>}
+        <Upload />
+      </button>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Overlay - click to close */}
+          <div
+            className="absolute inset-0 bg-black bg-opacity-30"
+            onClick={() => setShowModal(false)}
+          />
+
+          {/* Modal Content */}
+          <div className="relative z-10 w-full max-w-sm mx-auto bg-white rounded shadow-lg p-6 text-gray-700">
+            <h2 className="text-lg font-semibold mb-4">Upload a File</h2>
+
+            <div
+              {...getRootProps()}
+              className="border-2 border-dashed border-gray-300 p-6 rounded-lg cursor-pointer
+                         hover:border-gray-400 transition"
+            >
+              <input {...getInputProps()} />
+              <p className="text-sm text-center text-gray-500">
+                Drag &amp; drop an MP3 or PDF here,
+                <br />
+                or <span className="underline">click</span> to browse
+              </p>
+            </div>
+
+            {loading && (
+              <p className="mt-4 text-sm text-gray-500">
+                Processing your file...
+              </p>
+            )}
+
+            {/* Close Button */}
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-3 py-2 text-sm rounded bg-gray-800 hover:bg-gray-700 text-white
+                           focus:outline-none focus:ring-2 focus:ring-gray-400"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
