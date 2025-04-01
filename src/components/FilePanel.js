@@ -46,12 +46,12 @@ export default function FilePanel({
     if (token) fetchSessionNames();
   }, [triggerAfterUpdate, token]);
 
-  const truncateEmail = (email, maxLength) => {
-    if (!email || email.length <= maxLength) return email;
-    return email.slice(0, maxLength) + "...";
+  const truncateText = (text, maxLength) => {
+    if (!text || text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
   };
 
-  email = truncateEmail(email, 15);
+  email = truncateText(email, 15);
 
   return (
     <div
@@ -96,7 +96,7 @@ export default function FilePanel({
               onClick={() => setCurrentFileID(file.session_id)}
             >
               <span>
-                {file.session_id !== fileBeingRenamed && file.session_name}
+                {file.session_id !== fileBeingRenamed && truncateText(file.session_name, 15)}
               </span>
 
               <div className="inline-flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
